@@ -56,11 +56,11 @@ def load_and_filter(csv_text, set_name):
         raise SystemExit("CSV does not contain required columns (Game / Set Name / Card Name)")
 
     # Normalize strings and filter
-    df[game_col] = df[game_col].astype(str).str.strip()
-    df[set_col] = df[set_col].astype(str).str.strip()
+  #  df[game_col] = df[game_col].astype(str).str.strip()
+   # df[set_col] = df[set_col].astype(str).str.strip()
 # Filter Pokemon and set (case-insensitive)
-    df_filtered = df[df[game_col].str.lower().str.contains("pokemon")]
-    df_filtered = df_filtered[df_filtered[set_col].str.lower() == set_name.lower()]
+   # df_filtered = df[df[game_col].str.lower().str.contains("3")]
+   # df_filtered = df_filtered[df_filtered[set_col].str.lower() == set_name.lower()]
 
     # Build clean output columns
     df_out = pd.DataFrame()
