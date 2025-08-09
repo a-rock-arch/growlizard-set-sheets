@@ -44,15 +44,16 @@ def find_column(df, possible_names):
 def load_and_filter(csv_text, set_name):
     df = pd.read_csv(io.StringIO(csv_text))
     # Identify columns
-    game_col = find_column(df, ["Game", "game"])
-    set_col = find_column(df, ["Set Name", "Set", "set name"])
-    name_col = find_column(df, ["Card Name", "Name", "card_name"])
-    num_col = find_column(df, ["Number", "Card Number", "number"])
-    price_col = find_column(df, ["Market Price", "MarketPrice", "market price", "market_price", "Market"])
+    #game_col = find_column(df, ["Game", "game"])
+    #set_col = find_column(df, ["Set Name", "Set", "set name"])
+    name_col = find_column(df, ["name", "Name", "Card name"])
+    num_col = find_column(df, ["extNumber", "Card Number", "number"])
+    price_col = find_column(df, ["marketPrice", "MarketPrice", "market price", "market_price", "Market"])
+    image_col = find_column(df, ["imageUrl"])
 
-    if not (game_col and set_col and name_col):
-        print("CSV missing expected columns. Found columns:", df.columns.tolist())
-        raise SystemExit("CSV does not contain required columns (Game / Set Name / Card Name)")
+   # if not (game_col and set_col and name_col):
+    #    print("CSV missing expected columns. Found columns:", df.columns.tolist())
+     #   raise SystemExit("CSV does not contain required columns (Game / Set Name / Card Name)")
 
     # Normalize strings and filter
     df[game_col] = df[game_col].astype(str).str.strip()
