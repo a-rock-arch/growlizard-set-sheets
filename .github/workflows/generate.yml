@@ -1,9 +1,9 @@
 name: Generate GrowliZard Pokémon Sheet
 
 on:
-  workflow_dispatch: # Allows you to run it manually
+  workflow_dispatch:
   schedule:
-    - cron: "0 12 * * *" # Runs daily at 12:00 UTC
+    - cron: "0 12 * * *"
 
 jobs:
   build:
@@ -23,19 +23,32 @@ jobs:
 
       - name: Clone tcgcsv Repository
         run: |
+          # We will attempt to clone the repository.
+          # The next step will verify if this was successful.
           git clone https://github.com/CptSpaceToaster/tcgcsv.git
 
-      - name: List files for debugging # <<< NEW STEP
-        run: ls -R
-        # This command lists all files and folders so we can see the exact path.
+      - name: Verify tcgcsv Script Exists
+        id: verify_file # Give this step an ID to reference it
+        run: |
+          # This is the critical new step.
+          # It checks if the file exists at the expected path.
+          if [ -f "tcgcsv/tcgcsv.py" ]; then
+            echo "✅ tcgcsv.py found successfully."
+          else
+            echo "❌ ERROR: tcgcsv.py was NOT found after cloning."
+            echo "This means the git clone command failed or the repository structure is wrong."
+            echo "Listing current directory contents for debugging:"
+            ls -R
+            exit 1 # Stop the workflow with an error
+          fi
 
       - name: Generate CSV from TCGplayer
+        # This step will only run if the verification step above succeeded.
         run: |
-          # We may need to correct the path in the line below based on the debugging output
           python tcgcsv/tcgcsv.py "Destined Rivals" --output destined_rivals.csv
 
+      # --- The rest of your workflow remains the same ---
       - name: Download or generate card images
-        # ... (the rest of your file remains the same) ...
         env:
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
         run: |
@@ -50,7 +63,6 @@ jobs:
           csv_file = "destined_rivals.csv"
           df = pd.read_csv(csv_file)
 
-          # Replicate client
           client = replicate.Client(api_token=os.environ["REPLICATE_API_TOKEN"])
 
           for _, row in df.iterrows():
@@ -72,7 +84,6 @@ jobs:
                   except:
                       print(f"Failed official image for: {card_name}")
 
-              # Generate AI placeholder
               print(f"Generating AI art for: {card_name}")
               prompt = f"High quality digital painting of a Pokémon-style trading card featuring {row.get('name', 'a creature')}, full art, vibrant colors, no text, fantasy background, trading card art style"
               try:
@@ -100,12 +111,10 @@ jobs:
           pdf.add_font('Arial', '', '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf', uni=True)
           pdf.add_font('Arial', 'B', '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf', uni=True)
 
-
           card_w, card_h = 63, 88
           margin_x, margin_y = 10, 10
-          gap_x, gap_y = 5, 15  # extra gap for name/price text
+          gap_x, gap_y = 5, 15
 
-          # Associate images with dataframe rows to keep them in order
           card_data = []
           for index, row in df.iterrows():
               card_name_safe = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
@@ -127,12 +136,10 @@ jobs:
               y = margin_y + row * (card_h + gap_y)
 
               pdf.image(card["path"], x, y, card_w, card_h)
-
-              # Draw cut lines
+              
               pdf.set_draw_color(200, 200, 200)
               pdf.rect(x, y, card_w, card_h)
 
-              # Add card name + price
               name = card['name']
               price = card['price']
               price_text = f"${price:.2f}" if isinstance(price, (int, float)) else ""
@@ -146,11 +153,14 @@ jobs:
               pdf.set_xy(x, y + card_h + 7)
               pdf.multi_cell(card_w, 4, f"{price_text}", align='C')
 
-
           os.makedirs("printables", exist_ok=True)
           pdf.output("printables/destined_rivals_placeholders.pdf")
           EOF
 
       - name: Commit results
         run: |
-          git config --global user.name "github-actions
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add destined_rivals.csv images/ printables/
+          git commit -m "Update GrowliZard CSV, images (with AI), and PDF sheets" || echo "No changes to commit"
+          git push
