@@ -44,7 +44,6 @@ jobs:
 
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
-              # Set a large viewport to load more images by default
               page = browser.new_page(viewport={"width": 1920, "height": 1080})
 
               while True:
@@ -54,9 +53,7 @@ jobs:
                   html_content = ""
                   try:
                       page.goto(paginated_url, wait_until="networkidle", timeout=60000)
-                      # After the page is idle, add an extra hard wait to be absolutely sure
-                      print("Adding extra wait time for stubborn lazy-loaded content...")
-                      time.sleep(5) # Wait a full 5 seconds
+                      time.sleep(3) # Add a hard wait after network idle for extra safety
                       
                       html_content = page.content()
 
@@ -129,7 +126,6 @@ jobs:
           client = replicate.Client(api_token=os.environ["REPLICATE_API_TOKEN"])
 
           for _, row in df.iterrows():
-              # FIXED: Corrected the closing curly brace '}' in this f-string
               card_name = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
               img_path = f"images/{card_name}.jpg"
               image_url = row.get("imageUrl")
@@ -197,11 +193,13 @@ jobs:
                   })
 
           for idx, card in enumerate(card_data):
-              if idx % 9 == 0:
+              # CHANGED: New page every 6 cards for a 3x2 grid
+              if idx % 6 == 0:
                   pdf.add_page()
 
               col = (idx % 3)
-              row = ((idx % 9) // 3)
+              # CHANGED: Calculate row based on 6 items per page
+              row = ((idx % 6) // 3) 
               x = margin_x + col * (card_w + gap_x)
               y = margin_y + row * (card_h + gap_y)
 
