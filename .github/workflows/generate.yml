@@ -7,10 +7,6 @@ on:
 
 jobs:
   build:
-    # This block grants the necessary permission for the workflow to commit files.
-    permissions:
-      contents: write
-
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -37,12 +33,13 @@ jobs:
           import time
 
           BASE_URL = "https://www.tcgplayer.com/search/pokemon/sv-shrouded-fable?productLineName=pokemon&setName=sv-shrouded-fable&productTypeName=Cards&view=grid"
-          TARGET_SET_NAME = "Shrouded Fable"
+          # FIXED: Made the target name more flexible to catch variations like "SV: Shrouded Fable"
+          TARGET_SET_NAME = "Shrouded"
           
           all_cards_list = []
           page_number = 1
 
-          print(f"Starting scraper for set '{TARGET_SET_NAME}' with pagination and scrolling...")
+          print(f"Starting scraper for set containing '{TARGET_SET_NAME}' with pagination and scrolling...")
 
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
