@@ -44,7 +44,8 @@ jobs:
 
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
-              page = browser.new_page()
+              # Set a large viewport to load more images by default
+              page = browser.new_page(viewport={"width": 1920, "height": 1080})
 
               while True:
                   paginated_url = f"{BASE_URL}&page={page_number}"
@@ -52,24 +53,10 @@ jobs:
                   
                   html_content = ""
                   try:
-                      page.goto(paginated_url, wait_until="domcontentloaded", timeout=60000)
-                      
-                      # --- DEFINITIVE LAZY LOADING FIX ---
-                      # We will now scroll each card element into view to force it to load.
-                      print("Locating all card containers on page...")
-                      card_locators = page.locator("div.search-result").all()
-                      print(f"Found {len(card_locators)} locators. Scrolling each into view to trigger image loads...")
-                      
-                      for i, locator in enumerate(card_locators):
-                          try:
-                              locator.scroll_into_view_if_needed(timeout=1000)
-                              time.sleep(0.05) # a tiny delay to allow render
-                          except Exception:
-                              # If an element disappears before we can scroll to it, just continue
-                              pass
-                      
-                      print("All cards have been scrolled into view. Waiting for network to settle...")
-                      page.wait_for_load_state('networkidle', timeout=30000)
+                      page.goto(paginated_url, wait_until="networkidle", timeout=60000)
+                      # After the page is idle, add an extra hard wait to be absolutely sure
+                      print("Adding extra wait time for stubborn lazy-loaded content...")
+                      time.sleep(5) # Wait a full 5 seconds
                       
                       html_content = page.content()
 
@@ -142,6 +129,7 @@ jobs:
           client = replicate.Client(api_token=os.environ["REPLICATE_API_TOKEN"])
 
           for _, row in df.iterrows():
+              # FIXED: Corrected the closing curly brace '}' in this f-string
               card_name = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
               img_path = f"images/{card_name}.jpg"
               image_url = row.get("imageUrl")
@@ -200,4 +188,62 @@ jobs:
           card_data = []
           for index, row in df.iterrows():
               card_name_safe = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
-              img_path = f"images/{card_name
+              img_path = f"images/{card_name_safe}.jpg"
+              if os.path.exists(img_path):
+                  card_data.append({
+                      "name": row["name"],
+                      "price": row.get("marketPrice"),
+                      "path": img_path
+                  })
+
+          for idx, card in enumerate(card_data):
+              if idx % 9 == 0:
+                  pdf.add_page()
+
+              col = (idx % 3)
+              row = ((idx % 9) // 3)
+              x = margin_x + col * (card_w + gap_x)
+              y = margin_y + row * (card_h + gap_y)
+
+              try:
+                  pdf.image(card["path"], x, y, card_w, card_h)
+              except Exception as e:
+                  print(f"Could not add image {card['path']} to PDF: {e}")
+                  pdf.rect(x,y, card_w, card_h, 'D')
+                  pdf.set_xy(x, y + card_h / 2)
+                  pdf.multi_cell(card_w, 4, "Image Error", align='C')
+
+              
+              pdf.set_draw_color(200, 200, 200)
+              pdf.rect(x, y, card_w, card_h)
+
+              name = card['name']
+              price = card['price']
+              price_text = f"${price:.2f}" if isinstance(price, (int, float)) else ""
+              
+              try:
+                  pdf.set_font("Arial", 'B', size=8)
+              except RuntimeError:
+                  pdf.set_font("Helvetica", 'B', size=8)
+              pdf.set_text_color(0, 0, 0)
+              pdf.set_xy(x, y + card_h + 2)
+              pdf.multi_cell(card_w, 4, f"{name}", align='C')
+
+              try:
+                  pdf.set_font("Arial", '', size=7)
+              except RuntimeError:
+                  pdf.set_font("Helvetica", '', size=7)
+              pdf.set_xy(x, y + card_h + 7)
+              pdf.multi_cell(card_w, 4, f"{price_text}", align='C')
+
+          os.makedirs("printables", exist_ok=True)
+          pdf.output("printables/shrouded_fable_placeholders.pdf")
+          EOF
+
+      - name: Commit results
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add shrouded_fable.csv images/ printables/
+          git commit -m "Update GrowliZard CSV, images (with AI), and PDF sheets" || echo "No changes to commit"
+          git push
