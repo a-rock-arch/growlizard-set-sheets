@@ -1,9 +1,7 @@
-name: Generate GrowliZard Pokémon Sheet
+name: Generate GrowliZard Pokémon Sheet (Diagnostic Mode)
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 12 * * *"
 
 jobs:
   build:
@@ -19,29 +17,27 @@ jobs:
 
       - name: Install Dependencies and Browsers
         run: |
-          # We install all python packages first.
-          pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate playwright
-          # Then, in the SAME step, we install the browser dependencies.
+          pip install pandas requests beautifulsoup4 playwright
           python -m playwright install --with-deps
           
-      - name: Scrape TCGplayer Data
+      - name: Run Diagnostic Scraper
         run: |
           python << 'EOF'
           import pandas as pd
           from bs4 import BeautifulSoup
-          import re
           from playwright.sync_api import sync_playwright
 
           URL = "https://www.tcgplayer.com/search/pokemon/sv09-shrouded-fable?productLineName=pokemon&setName=sv09-shrouded-fable&view=grid"
           
-          print(f"Scraping URL: {URL}")
+          print(f"Scraping URL for diagnostics: {URL}")
 
           html_content = ""
           try:
               with sync_playwright() as p:
                   browser = p.chromium.launch(headless=True)
                   page = browser.new_page()
-                  page.goto(URL, wait_until="domcontentloaded", timeout=60000)
+                  page.goto(URL, wait_until="networkidle", timeout=60000)
+                  # Wait for the specific element we are targeting.
                   page.wait_for_selector("div.search-result", timeout=30000)
                   html_content = page.content()
                   browser.close()
@@ -54,157 +50,15 @@ jobs:
               exit(1)
               
           soup = BeautifulSoup(html_content, "html.parser")
-          card_list = []
           search_results = soup.find_all("div", class_="search-result")
 
-          if not search_results:
-            print("!!! No search results found even with Playwright. TCGplayer has likely changed their HTML structure.")
-            exit(1)
-
-          print(f"Found {len(search_results)} card results on the page. Now parsing details...")
-
-          for i, card in enumerate(search_results):
-              # This section may still need debugging from the previous step if parsing fails again.
-              name_tag = card.find("span", class_="search-result__title")
-              price_tag = card.select_one("section.search-result__market-price span.price-point__price")
-              image_tag = card.select_one("a.search-result__img-wrapper img")
-
-              name = name_tag.text.strip() if name_tag else None
-              price_text = price_tag.text.strip() if price_tag else "$0.00"
-              image_url = image_tag.get("src") if image_tag else None
-              
-              price_match = re.search(r'\$([\d,]+\.\d{2})', price_text)
-              price = float(price_match.group(1).replace(",", "")) if price_match else 0.0
-
-              if name and image_url:
-                  card_list.append({
-                      "name": name,
-                      "marketPrice": price,
-                      "imageUrl": image_url
-                  })
-
-          if card_list:
-            df = pd.DataFrame(card_list)
-            df.to_csv("shrouded_fable.csv", index=False)
-            print(f"✅ Successfully parsed and saved {len(df)} cards to shrouded_fable.csv")
+          if search_results:
+              print("\n✅ Found search results. Printing the HTML for the first card below for debugging:")
+              print("\n==================== BEGIN HTML OF FIRST CARD ====================\n")
+              # Using prettify() makes the HTML easier to read.
+              print(search_results[0].prettify())
+              print("\n==================== END HTML OF FIRST CARD ======================\n")
+              print("\nInstructions: Please copy the entire HTML block above (from BEGIN to END) and paste it in your reply.")
           else:
-            print("!!! FAILED to parse any card data from the page. The internal HTML classes for name/price/image have likely changed again.")
-            exit(1)
+              print("❌ No 'div.search-result' containers found. The main container class has likely changed.")
           EOF
-
-      - name: Download or generate card images
-        env:
-          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
-        run: |
-          mkdir -p images
-          python << 'EOF'
-          import pandas as pd
-          import requests
-          import os
-          import replicate
-          from PIL import Image, ImageDraw, ImageFont
-          from io import BytesIO
-          csv_file = "shrouded_fable.csv"
-          df = pd.read_csv(csv_file)
-
-          client = replicate.Client(api_token=os.environ["REPLICATE_API_TOKEN"])
-
-          for _, row in df.iterrows():
-              card_name = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
-              img_path = f"images/{card_name}.jpg"
-              image_url = row.get("imageUrl")
-
-              if os.path.exists(img_path):
-                  print(f"Skipping existing image: {card_name}")
-                  continue
-
-              if pd.notna(image_url):
-                  try:
-                      img_data = requests.get(image_url).content
-                      with open(img_path, "wb") as f:
-                          f.write(img_data)
-                      print(f"Downloaded official: {card_name}")
-                      continue
-                  except:
-                      print(f"Failed official image for: {card_name}")
-
-              print(f"Generating AI art for: {card_name}")
-              prompt = f"High quality digital painting of a Pokémon-style trading card featuring {row.get('name', 'a creature')}, full art, vibrant colors, no text, fantasy background, trading card art style"
-              try:
-                  output = client.run(
-                      "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
-                      input={"prompt": prompt, "width": 512, "height": 736}
-                  )
-                  img_data = requests.get(output[0]).content
-                  with open(img_path, "wb") as f:
-                      f.write(img_data)
-              except Exception as e:
-                  print(f"!!! AI generation failed for {card_name}: {e}")
-          EOF
-
-      - name: Generate printable PDF
-        run: |
-          python << 'EOF'
-          import os
-          import pandas as pd
-          from fpdf import FPDF
-          df = pd.read_csv("shrouded_fable.csv")
-
-          pdf = FPDF('P', 'mm', 'A4')
-          pdf.set_auto_page_break(False)
-          pdf.add_font('Arial', '', '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf', uni=True)
-          pdf.add_font('Arial', 'B', '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf', uni=True)
-
-          card_w, card_h = 63, 88
-          margin_x, margin_y = 10, 10
-          gap_x, gap_y = 5, 15
-
-          card_data = []
-          for index, row in df.iterrows():
-              card_name_safe = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
-              img_path = f"images/{card_name_safe}.jpg"
-              if os.path.exists(img_path):
-                  card_data.append({
-                      "name": row["name"],
-                      "price": row.get("marketPrice"),
-                      "path": img_path
-                  })
-
-          for idx, card in enumerate(card_data):
-              if idx % 9 == 0:
-                  pdf.add_page()
-
-              col = (idx % 3)
-              row = ((idx % 9) // 3)
-              x = margin_x + col * (card_w + gap_x)
-              y = margin_y + row * (card_h + gap_y)
-
-              pdf.image(card["path"], x, y, card_w, card_h)
-              
-              pdf.set_draw_color(200, 200, 200)
-              pdf.rect(x, y, card_w, card_h)
-
-              name = card['name']
-              price = card['price']
-              price_text = f"${price:.2f}" if isinstance(price, (int, float)) else ""
-
-              pdf.set_font("Arial", 'B', size=8)
-              pdf.set_text_color(0, 0, 0)
-              pdf.set_xy(x, y + card_h + 2)
-              pdf.multi_cell(card_w, 4, f"{name}", align='C')
-
-              pdf.set_font("Arial", '', size=7)
-              pdf.set_xy(x, y + card_h + 7)
-              pdf.multi_cell(card_w, 4, f"{price_text}", align='C')
-
-          os.makedirs("printables", exist_ok=True)
-          pdf.output("printables/shrouded_fable_placeholders.pdf")
-          EOF
-
-      - name: Commit results
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add shrouded_fable.csv images/ printables/
-          git commit -m "Update GrowliZard CSV, images (with AI), and PDF sheets" || echo "No changes to commit"
-          git push
