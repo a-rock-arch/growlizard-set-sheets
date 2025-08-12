@@ -53,20 +53,22 @@ jobs:
                   html_content = ""
                   try:
                       page.goto(paginated_url, wait_until="domcontentloaded", timeout=60000)
-                      page.wait_for_selector("div.search-result, div.search-feedback", timeout=30000)
                       
-                      # This combines both scrolling and waiting for the network to be idle.
-                      print("Scrolling to trigger lazy-load...")
-                      last_height = page.evaluate("document.body.scrollHeight")
-                      while True:
-                          page.evaluate("window.scrollTo(0, document.body.scrollHeight);")
-                          time.sleep(1) # Give scroll time to trigger new requests
-                          new_height = page.evaluate("document.body.scrollHeight")
-                          if new_height == last_height:
-                              break
-                          last_height = new_height
-
-                      print("Waiting for network to be idle to ensure all images are loaded...")
+                      # --- DEFINITIVE LAZY LOADING FIX ---
+                      # We will now scroll each card element into view to force it to load.
+                      print("Locating all card containers on page...")
+                      card_locators = page.locator("div.search-result").all()
+                      print(f"Found {len(card_locators)} locators. Scrolling each into view to trigger image loads...")
+                      
+                      for i, locator in enumerate(card_locators):
+                          try:
+                              locator.scroll_into_view_if_needed(timeout=1000)
+                              time.sleep(0.05) # a tiny delay to allow render
+                          except Exception:
+                              # If an element disappears before we can scroll to it, just continue
+                              pass
+                      
+                      print("All cards have been scrolled into view. Waiting for network to settle...")
                       page.wait_for_load_state('networkidle', timeout=30000)
                       
                       html_content = page.content()
