@@ -52,14 +52,8 @@ jobs:
                   
                   html_content = ""
                   try:
-                      # Go to the page and wait for the basic structure to load
                       page.goto(paginated_url, wait_until="domcontentloaded", timeout=60000)
-                      # Wait for at least one search result to be visible
-                      page.wait_for_selector("div.search-result", timeout=30000)
-                      
-                      # --- THE DEFINITIVE LAZY LOADING FIX ---
-                      # Instead of manually scrolling, we tell Playwright to wait until the network is quiet.
-                      # This is the most reliable way to ensure all dynamic content has finished loading.
+                      # This is a more reliable way to wait for all content to finish loading
                       print("Waiting for network to be idle to ensure all images are loaded...")
                       page.wait_for_load_state('networkidle', timeout=30000)
                       
