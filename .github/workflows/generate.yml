@@ -2,6 +2,15 @@ name: Generate GrowliZard Pokémon Sheet
 
 on:
   workflow_dispatch:
+    inputs:
+      set_url_name:
+        description: 'The set name used in the TCGplayer URL (e.g., sv09-shrouded-fable)'
+        required: true
+        default: 'sv09-shrouded-fable'
+      set_filter_name:
+        description: 'The keyword to filter cards by (e.g., Shrouded)'
+        required: true
+        default: 'Shrouded'
   schedule:
     - cron: "0 12 * * *"
 
@@ -26,6 +35,10 @@ jobs:
           python -m playwright install --with-deps
           
       - name: Scrape TCGplayer Data
+        # We now pass the user's inputs into the script as environment variables
+        env:
+          SET_URL_NAME: ${{ github.event.inputs.set_url_name }}
+          SET_FILTER_NAME: ${{ github.event.inputs.set_filter_name }}
         run: |
           python << 'EOF'
           import pandas as pd
@@ -33,9 +46,16 @@ jobs:
           import re
           from playwright.sync_api import sync_playwright
           import time
+          import os
 
-          BASE_URL = "https://www.tcgplayer.com/search/pokemon/sv-shrouded-fable?productLineName=pokemon&setName=sv-shrouded-fable&productTypeName=Cards&view=grid"
-          TARGET_SET_NAME = "Shrouded"
+          # --- Configuration from Inputs ---
+          # Read the set names from the environment variables passed by the workflow
+          set_url_name = os.environ.get('SET_URL_NAME')
+          TARGET_SET_NAME = os.environ.get('SET_FILTER_NAME')
+          
+          # Use the inputs to build the URL and Filename
+          BASE_URL = f"https://www.tcgplayer.com/search/pokemon/{set_url_name}?productLineName=pokemon&setName={set_url_name}&productTypeName=Cards&view=grid"
+          CSV_FILENAME = f"{set_url_name}.csv"
           
           all_cards_list = []
           page_number = 1
@@ -53,10 +73,8 @@ jobs:
                   html_content = ""
                   try:
                       page.goto(paginated_url, wait_until="networkidle", timeout=60000)
-                      time.sleep(3) 
-                      
+                      time.sleep(3)
                       html_content = page.content()
-
                   except Exception as e:
                       print(f"Browser operation finished or failed on page {page_number}: {e}")
                       break
@@ -101,8 +119,8 @@ jobs:
 
           if all_cards_list:
             df = pd.DataFrame(all_cards_list)
-            df.to_csv("shrouded_fable.csv", index=False)
-            print(f"✅ Successfully parsed and saved a total of {len(df)} cards to shrouded_fable.csv")
+            df.to_csv(CSV_FILENAME, index=False)
+            print(f"✅ Successfully parsed and saved a total of {len(df)} cards to {CSV_FILENAME}")
           else:
             print("!!! FAILED to parse any card data from any page.")
             exit(1)
@@ -111,6 +129,7 @@ jobs:
       - name: Download or generate card images
         env:
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+          SET_URL_NAME: ${{ github.event.inputs.set_url_name }}
         run: |
           mkdir -p images
           python << 'EOF'
@@ -120,7 +139,9 @@ jobs:
           import replicate
           from PIL import Image
           from io import BytesIO
-          csv_file = "shrouded_fable.csv"
+          
+          set_url_name = os.environ.get('SET_URL_NAME')
+          csv_file = f"{set_url_name}.csv"
           df = pd.read_csv(csv_file)
 
           client = replicate.Client(api_token=os.environ["REPLICATE_API_TOKEN"])
@@ -159,6 +180,9 @@ jobs:
           EOF
 
       - name: Generate printable PDF
+        env:
+          SET_URL_NAME: ${{ github.event.inputs.set_url_name }}
+          SET_FILTER_NAME: ${{ github.event.inputs.set_filter_name }}
         run: |
           python << 'EOF'
           import os
@@ -166,10 +190,15 @@ jobs:
           from fpdf import FPDF
           from datetime import datetime
 
-          # Get the current time for the timestamp
+          set_url_name = os.environ.get('SET_URL_NAME')
+          set_filter_name = os.environ.get('SET_FILTER_NAME')
+          
           timestamp = datetime.now().strftime("%B %d, %Y at %I:%M %p EDT")
-
-          df = pd.read_csv("shrouded_fable.csv")
+          csv_file = f"{set_url_name}.csv"
+          pdf_filename = f"{set_url_name}_placeholders.pdf"
+          pdf_title = f"Growlizard's {set_filter_name} Print List"
+          
+          df = pd.read_csv(csv_file)
 
           pdf = FPDF('P', 'mm', 'A4')
           pdf.set_auto_page_break(False)
@@ -181,8 +210,8 @@ jobs:
 
           card_w, card_h = 63, 88
           margin_x = 10
-          margin_y = 30 # Increased top margin to make space for the new sub-header
-          gap_x, gap_y = 5, 20 # Increased vertical gap for the longer price text
+          margin_y = 30 
+          gap_x, gap_y = 5, 20
 
           card_data = []
           for index, row in df.iterrows():
@@ -198,22 +227,19 @@ jobs:
           for idx, card in enumerate(card_data):
               if idx % 6 == 0:
                   pdf.add_page()
-                  # --- ADD PAGE HEADER ---
                   try:
                       pdf.set_font("Arial", 'B', size=16)
                   except RuntimeError:
                       pdf.set_font("Helvetica", 'B', size=16)
                   pdf.set_xy(0, 10)
-                  pdf.cell(0, 10, "Growlizard's Shrouded Fable Print List", align='C')
+                  pdf.cell(0, 10, pdf_title, align='C')
 
-                  # --- NEW: ADD TIMESTAMP SUB-HEADER ---
                   try:
-                      pdf.set_font("Arial", '', size=9) # '' for regular style
+                      pdf.set_font("Arial", '', size=9)
                   except RuntimeError:
                       pdf.set_font("Helvetica", '', size=9)
                   pdf.set_xy(0, 18)
                   pdf.cell(0, 10, f"This is the current data as of {timestamp}", align='C')
-
 
               col = (idx % 3)
               row = ((idx % 6) // 3) 
@@ -233,11 +259,8 @@ jobs:
 
               name = card['name']
               price = card['price']
-              
-              # --- NEW: UPDATED PRICE TEXT ---
               price_text = f"Current Market Price:\n${price:.2f}" if isinstance(price, (int, float)) else "Price not available"
               
-              # Set font for card name
               try:
                   pdf.set_font("Arial", 'B', size=8)
               except RuntimeError:
@@ -246,22 +269,27 @@ jobs:
               pdf.set_xy(x, y + card_h + 2)
               pdf.multi_cell(card_w, 4, f"{name}", align='C')
 
-              # Set font for new price text
               try:
                   pdf.set_font("Arial", 'B', size=8) 
               except RuntimeError:
                   pdf.set_font("Helvetica", 'B', size=8)
-              pdf.set_xy(x, y + card_h + 9) # Adjusted y-position for new font size
+              pdf.set_xy(x, y + card_h + 9)
               pdf.multi_cell(card_w, 4, f"{price_text}", align='C')
 
           os.makedirs("printables", exist_ok=True)
-          pdf.output("printables/shrouded_fable_placeholders.pdf")
+          pdf.output(f"printables/{pdf_filename}")
           EOF
 
       - name: Commit results
+        env:
+          SET_URL_NAME: ${{ github.event.inputs.set_url_name }}
         run: |
+          set_url_name=$(echo "${{ github.event.inputs.set_url_name }}")
+          csv_file="${set_url_name}.csv"
+          pdf_file="printables/${set_url_name}_placeholders.pdf"
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add shrouded_fable.csv images/ printables/
-          git commit -m "Update GrowliZard CSV, images (with AI), and PDF sheets" || echo "No changes to commit"
+          git add "$csv_file" images/ "$pdf_file"
+          git commit -m "Update GrowliZard data for set: ${set_url_name}" || echo "No changes to commit"
           git push
