@@ -7,6 +7,11 @@ on:
 
 jobs:
   build:
+    # This permissions block is the only change needed.
+    # It gives the workflow permission to write back to your repository.
+    permissions:
+      contents: write
+
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -17,17 +22,10 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Install All Dependencies
+      - name: Install Dependencies and Browsers
         run: |
-          # Upgrade pip for reliability
           python -m pip install --upgrade pip
-          # Install all required python packages
           pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate playwright
-          # Verify the playwright installation to catch errors immediately
-          echo "Verifying playwright installation..."
-          pip show playwright
-          # Install the browser binaries
-          echo "Installing browser dependencies..."
           python -m playwright install --with-deps
           
       - name: Scrape TCGplayer Data
