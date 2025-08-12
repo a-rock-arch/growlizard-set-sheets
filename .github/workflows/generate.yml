@@ -19,39 +19,53 @@ jobs:
 
       - name: Install Python Dependencies
         run: |
-          pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate
+          pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate playwright
 
+      - name: Install Playwright Browsers
+        run: |
+          playwright install --with-deps
+          
       - name: Scrape TCGplayer Data
         run: |
           python << 'EOF'
           import pandas as pd
-          import requests
           from bs4 import BeautifulSoup
-          import json
           import re
+          from playwright.sync_api import sync_playwright
 
           # --- Configuration ---
-          # FIXED: Using a valid URL for a real set, "Shrouded Fable".
           URL = "https://www.tcgplayer.com/search/pokemon/sv09-shrouded-fable?productLineName=pokemon&setName=sv09-shrouded-fable&view=grid"
           
           print(f"Scraping URL: {URL}")
 
-          # --- Scrape the Page ---
-          headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
+          # --- Scrape the Page using a Headless Browser ---
+          html_content = ""
           try:
-            page = requests.get(URL, headers=headers)
-            page.raise_for_status()
-            soup = BeautifulSoup(page.content, "html.parser")
-          except requests.exceptions.RequestException as e:
-            print(f"!!! FAILED to fetch TCGplayer page: {e}")
-            exit(1)
+              with sync_playwright() as p:
+                  browser = p.chromium.launch(headless=True)
+                  page = browser.new_page()
+                  page.goto(URL, wait_until="domcontentloaded", timeout=60000)
+                  
+                  # Wait for the search results to be visible on the page. This is crucial.
+                  page.wait_for_selector("div.search-result", timeout=30000)
+                  
+                  html_content = page.content()
+                  browser.close()
+          except Exception as e:
+              print(f"!!! FAILED during Playwright browser operation: {e}")
+              exit(1)
 
-          # --- Find and Parse Card Data ---
+          if not html_content:
+              print("!!! FAILED to retrieve page content with Playwright.")
+              exit(1)
+              
+          # --- Parse Card Data with BeautifulSoup (as before) ---
+          soup = BeautifulSoup(html_content, "html.parser")
           card_list = []
           search_results = soup.find_all("div", class_="search-result")
 
           if not search_results:
-            print("!!! No search results found. TCGplayer might have changed their HTML structure or the URL is wrong.")
+            print("!!! No search results found even with Playwright. TCGplayer has likely changed their HTML structure.")
             exit(1)
 
           print(f"Found {len(search_results)} card results on the page.")
@@ -78,7 +92,6 @@ jobs:
           # --- Save to CSV ---
           if card_list:
             df = pd.DataFrame(card_list)
-            # FIXED: Saving the CSV with a name that matches the set being scraped.
             df.to_csv("shrouded_fable.csv", index=False)
             print(f"✅ Successfully scraped {len(df)} cards and saved to shrouded_fable.csv")
           else:
@@ -86,6 +99,7 @@ jobs:
             exit(1)
           EOF
 
+      # --- The rest of your workflow remains the same ---
       - name: Download or generate card images
         env:
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
@@ -98,7 +112,6 @@ jobs:
           import replicate
           from PIL import Image, ImageDraw, ImageFont
           from io import BytesIO
-          # FIXED: Reading the correct CSV file created in the previous step.
           csv_file = "shrouded_fable.csv"
           df = pd.read_csv(csv_file)
 
@@ -143,7 +156,6 @@ jobs:
           import os
           import pandas as pd
           from fpdf import FPDF
-          # FIXED: Reading the correct CSV file.
           df = pd.read_csv("shrouded_fable.csv")
 
           pdf = FPDF('P', 'mm', 'A4')
@@ -189,12 +201,11 @@ jobs:
               pdf.set_xy(x, y + card_h + 2)
               pdf.multi_cell(card_w, 4, f"{name}", align='C')
 
-              pdf.set_font("Arial", '', size=7)
+              pdf.set_font("Arial', '', size=7)
               pdf.set_xy(x, y + card_h + 7)
               pdf.multi_cell(card_w, 4, f"{price_text}", align='C')
 
           os.makedirs("printables", exist_ok=True)
-          # FIXED: Naming the output PDF to match the set.
           pdf.output("printables/shrouded_fable_placeholders.pdf")
           EOF
 
@@ -202,7 +213,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          # FIXED: Committing the correct CSV file.
           git add shrouded_fable.csv images/ printables/
           git commit -m "Update GrowliZard CSV, images (with AI), and PDF sheets" || echo "No changes to commit"
           git push
