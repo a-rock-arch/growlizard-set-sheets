@@ -48,10 +48,10 @@ jobs:
           soup = BeautifulSoup(html_content, "html.parser")
           set_list = []
           
-          # FIXED: Updated the selector to find the set filter dropdown by its 'name' attribute.
+          # FIXED: Updated the selector to find the set filter dropdown by its 'name' attribute, which they seem to have reverted to.
           set_filter = soup.find("select", {"name": "setName"})
           if not set_filter:
-              print("!!! Could not find the set filter dropdown on the page.")
+              print("!!! Could not find the set filter dropdown on the page. TCGplayer has likely changed their HTML again.")
               exit(1)
 
           for option in set_filter.find_all("option"):
