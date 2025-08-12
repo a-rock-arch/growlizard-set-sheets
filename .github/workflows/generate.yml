@@ -1,4 +1,4 @@
-name: Generate GrowliZard Pokémon Sheets
+name: Generate GrowliZard Pokémon Sheet
 
 on:
   workflow_dispatch:
