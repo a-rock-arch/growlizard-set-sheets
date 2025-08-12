@@ -1,37 +1,117 @@
-name: Generate Pokémon Prices CSV
+name: Generate GrowliZard Pokémon Sheets
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 12 * * *'  # runs every day at 12:00 UTC
+    - cron: "0 12 * * *"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.x"
 
-      - name: Install tcgcsv
+      - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          pip install git+https://github.com/kamronbatman/tcgcsv.git
+          pip install git+https://github.com/kamronbatman/tcgcsv.git pandas requests Pillow fpdf2
 
-      - name: Run tcgcsv
+      - name: Generate CSV from TCGplayer
+        run: tcgcsv "Destined Rivals" --output destined_rivals.csv
+
+      - name: Download or generate card images
         run: |
-          mkdir -p output
-          tcgcsv --set "Destined Rivals" --out output/cards.csv
+          mkdir -p images
+          python << 'EOF'
+          import pandas as pd
+          import requests
+          import os
+          from PIL import Image, ImageDraw, ImageFont
 
-      - name: Commit and push CSV
+          csv_file = "destined_rivals.csv"
+          df = pd.read_csv(csv_file)
+
+          for _, row in df.iterrows():
+              image_url = row.get("imageUrl")
+              card_name = row.get("name", "unknown").replace("/", "_").replace(" ", "_")
+              img_path = f"images/{card_name}.jpg"
+
+              if pd.notna(image_url):
+                  try:
+                      img_data = requests.get(image_url).content
+                      with open(img_path, "wb") as f:
+                          f.write(img_data)
+                      print(f"Downloaded: {card_name}")
+                      continue
+                  except:
+                      print(f"Image failed for: {card_name}")
+
+              # Create simple AI-style placeholder (non-infringing)
+              placeholder = Image.new("RGB", (300, 420), (245, 245, 245))
+              draw = ImageDraw.Draw(placeholder)
+              font = ImageFont.load_default()
+              draw.text((20, 200), "Pokémon-Style Art", fill=(0,0,0), font=font)
+              draw.text((20, 220), "Coming Soon", fill=(0,0,0), font=font)
+              placeholder.save(img_path)
+          EOF
+
+      - name: Generate printable PDF
+        run: |
+          python << 'EOF'
+          import os
+          import pandas as pd
+          from fpdf import FPDF
+          from PIL import Image
+
+          df = pd.read_csv("destined_rivals.csv")
+
+          pdf = FPDF('P', 'mm', 'A4')
+          pdf.set_auto_page_break(False)
+
+          card_w, card_h = 63, 88
+          margin_x, margin_y = 10, 10
+          gap_x, gap_y = 5, 15  # extra gap for name/price text
+
+          images_dir = "images"
+          img_files = sorted([f for f in os.listdir(images_dir) if f.endswith(".jpg")])
+
+          for idx, img_file in enumerate(img_files):
+              if idx % 9 == 0:
+                  pdf.add_page()
+
+              col = (idx % 3)
+              row = ((idx % 9) // 3)
+              x = margin_x + col * (card_w + gap_x)
+              y = margin_y + row * (card_h + gap_y)
+
+              img_path = os.path.join(images_dir, img_file)
+              pdf.image(img_path, x, y, card_w, card_h)
+
+              # Draw cut lines
+              pdf.set_draw_color(200, 200, 200)
+              pdf.rect(x, y, card_w, card_h)
+
+              # Add card name + price
+              name = df.iloc[idx]['name'] if idx < len(df) else "Unknown"
+              price = df.iloc[idx]['marketPrice'] if 'marketPrice' in df.columns and idx < len(df) else ""
+              pdf.set_font("Arial", size=8)
+              pdf.set_text_color(0, 0, 0)
+              pdf.set_xy(x, y + card_h + 2)
+              pdf.multi_cell(card_w, 4, f"{name}\n${price}", align='C')
+
+          os.makedirs("printables", exist_ok=True)
+          pdf.output("printables/destined_rivals_placeholders.pdf")
+          EOF
+
+      - name: Commit results
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add output/cards.csv
-          git commit -m "Update card prices"
+          git add destined_rivals.csv images/ printables/
+          git commit -m "Update GrowliZard CSV, images, and PDF sheets" || echo "No changes"
           git push
-
