@@ -1,14 +1,11 @@
 name: Generate All Pokémon Set Sheets
 
 on:
-  # This schedule will trigger the entire process automatically.
   schedule:
     - cron: "0 12 * * *" # Runs daily at 12:00 UTC
-  # You can still run this manually for all sets if needed.
   workflow_dispatch:
 
 jobs:
-  # JOB 1: Get a list of all sets from TCGplayer
   discover-sets:
     runs-on: ubuntu-latest
     outputs:
@@ -51,8 +48,8 @@ jobs:
           soup = BeautifulSoup(html_content, "html.parser")
           set_list = []
           
-          # FIXED: Updated the selector to find the set filter dropdown by its new 'data-testid' attribute.
-          set_filter = soup.find("select", {"data-testid": "product-filter__set"})
+          # FIXED: Updated the selector to find the set filter dropdown by its 'name' attribute.
+          set_filter = soup.find("select", {"name": "setName"})
           if not set_filter:
               print("!!! Could not find the set filter dropdown on the page.")
               exit(1)
@@ -62,7 +59,6 @@ jobs:
               set_display_name = option.text.strip()
               
               if set_url_name and set_display_name:
-                  # Create a simple filter name (e.g., "Sword & Shield: Shrouded Fable" -> "Shrouded")
                   filter_name = set_display_name.split(': ')[-1].split(' ')[0]
                   
                   set_list.append({
@@ -78,7 +74,6 @@ jobs:
               print(f'matrix={json_output}', file=hf)
           EOF
 
-  # JOB 2: Take the list of sets and generate a sheet for each one
   generate-sheets:
     needs: discover-sets
     permissions:
@@ -359,7 +354,6 @@ jobs:
           csv_file="${set_url_name}.csv"
           pdf_file="printables/${set_url_name}_placeholders.pdf"
 
-          # Only proceed if the CSV file was actually created
           if [ ! -f "$csv_file" ]; then
             echo "No CSV found for ${set_url_name}, skipping commit."
             exit 0
@@ -368,7 +362,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # We add all new images, but only the specific CSV and PDF for this job
           git add images/ "$csv_file" "$pdf_file"
           git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit for ${{ matrix.set.set_display_name }}"
           git push
