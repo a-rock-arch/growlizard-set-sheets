@@ -7,6 +7,10 @@ on:
 
 jobs:
   build:
+    # This block grants the necessary permission for the workflow to commit files.
+    permissions:
+      contents: write
+
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -32,7 +36,6 @@ jobs:
           from playwright.sync_api import sync_playwright
           import time
 
-          # Using your new, more precise URL with the productTypeName=Cards filter.
           BASE_URL = "https://www.tcgplayer.com/search/pokemon/sv-shrouded-fable?productLineName=pokemon&setName=sv-shrouded-fable&productTypeName=Cards&view=grid"
           TARGET_SET_NAME = "Shrouded Fable"
           
