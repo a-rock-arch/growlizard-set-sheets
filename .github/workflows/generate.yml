@@ -7,11 +7,6 @@ on:
 
 jobs:
   build:
-    # This permissions block is the only change needed.
-    # It gives the workflow permission to write back to your repository.
-    permissions:
-      contents: write
-
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -35,66 +30,83 @@ jobs:
           from bs4 import BeautifulSoup
           import re
           from playwright.sync_api import sync_playwright
+          import time # Import the time module for delays
 
-          URL = "https://www.tcgplayer.com/search/pokemon/sv09-shrouded-fable?productLineName=pokemon&setName=sv09-shrouded-fable&view=grid"
+          # --- Configuration ---
+          BASE_URL = "https://www.tcgplayer.com/search/pokemon/sv09-shrouded-fable?productLineName=pokemon&setName=sv09-shrouded-fable&view=grid"
           
-          print(f"Scraping URL: {URL}")
+          all_cards_list = []
+          page_number = 1
 
-          html_content = ""
-          try:
-              with sync_playwright() as p:
-                  browser = p.chromium.launch(headless=True)
-                  page = browser.new_page()
-                  page.goto(URL, wait_until="domcontentloaded", timeout=60000)
-                  page.wait_for_selector("div.search-result", timeout=30000)
-                  html_content = page.content()
-                  browser.close()
-          except Exception as e:
-              print(f"!!! FAILED during Playwright browser operation: {e}")
-              exit(1)
+          print("Starting scraper with pagination...")
 
-          if not html_content:
-              print("!!! FAILED to retrieve page content with Playwright.")
-              exit(1)
-              
-          soup = BeautifulSoup(html_content, "html.parser")
-          card_list = []
-          search_results = soup.find_all("div", class_="search-result")
+          # --- Main Pagination Loop ---
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              page = browser.new_page()
 
-          if not search_results:
-            print("!!! No search results found even with Playwright. TCGplayer has likely changed their HTML structure.")
-            exit(1)
+              while True:
+                  # Construct URL for the current page
+                  paginated_url = f"{BASE_URL}&page={page_number}"
+                  print(f"Scraping URL: {paginated_url}")
+                  
+                  # --- Scrape the current page ---
+                  html_content = ""
+                  try:
+                      page.goto(paginated_url, wait_until="domcontentloaded", timeout=60000)
+                      # Wait for either the results or a "no results" message to appear
+                      page.wait_for_selector("div.search-result, div.search-feedback", timeout=30000)
+                      html_content = page.content()
+                  except Exception as e:
+                      print(f"!!! FAILED during Playwright browser operation on page {page_number}: {e}")
+                      break # Exit loop if a page fails to load
 
-          print(f"Found {len(search_results)} card results on the page. Now parsing with final selectors...")
+                  soup = BeautifulSoup(html_content, "html.parser")
+                  search_results = soup.find_all("div", class_="search-result")
 
-          for card in search_results:
-              name_tag = card.find("span", class_="product-card__title")
-              price_tag = card.find("span", class_="product-card__market-price--value")
-              image_tag = card.find("img")
+                  # If no results are found on the page, we've reached the end
+                  if not search_results:
+                    print(f"No more search results found on page {page_number}. Ending scrape.")
+                    break
+                  
+                  print(f"Found {len(search_results)} card results on page {page_number}. Now parsing details...")
 
-              name = name_tag.text.strip() if name_tag else None
-              price_text = price_tag.text.strip() if price_tag else "$0.00"
-              image_url = image_tag.get("src") if image_tag else None
-              
-              price_match = re.search(r'\$([\d,]+\.\d{2})', price_text)
-              price = float(price_match.group(1).replace(",", "")) if price_match else 0.0
+                  for card in search_results:
+                      name_tag = card.find("span", class_="product-card__title")
+                      price_tag = card.find("span", class_="product-card__market-price--value")
+                      image_tag = card.find("img")
 
-              if name and image_url:
-                  card_list.append({
-                      "name": name,
-                      "marketPrice": price,
-                      "imageUrl": image_url
-                  })
+                      name = name_tag.text.strip() if name_tag else None
+                      price_text = price_tag.text.strip() if price_tag else "$0.00"
+                      image_url = image_tag.get("src") if image_tag else None
+                      
+                      price_match = re.search(r'\$([\d,]+\.\d{2})', price_text)
+                      price = float(price_match.group(1).replace(",", "")) if price_match else 0.0
 
-          if card_list:
-            df = pd.DataFrame(card_list)
+                      if name and image_url:
+                          all_cards_list.append({
+                              "name": name,
+                              "marketPrice": price,
+                              "imageUrl": image_url
+                          })
+                  
+                  # Move to the next page and add a polite delay
+                  page_number += 1
+                  time.sleep(1) # Wait 1 second before scraping the next page
+
+              browser.close()
+
+          # --- Save All Scraped Data to CSV ---
+          if all_cards_list:
+            df = pd.DataFrame(all_cards_list)
             df.to_csv("shrouded_fable.csv", index=False)
-            print(f"✅ Successfully parsed and saved {len(df)} cards to shrouded_fable.csv")
+            print(f"✅ Successfully parsed and saved a total of {len(df)} cards to shrouded_fable.csv")
           else:
-            print("!!! FAILED to parse any card data. If this happens, the HTML has changed again.")
+            print("!!! FAILED to parse any card data from any page.")
             exit(1)
           EOF
 
+      # --- The rest of your workflow remains the same ---
       - name: Download or generate card images
         env:
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
