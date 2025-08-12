@@ -19,11 +19,10 @@ jobs:
 
       - name: Install Python Dependencies
         run: |
-          pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate playwright
+          pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate
 
       - name: Install Playwright Browsers
         run: |
-          # FIXED: Running playwright as a python module is more reliable.
           python -m playwright install --with-deps
           
       - name: Scrape TCGplayer Data
@@ -60,39 +59,58 @@ jobs:
           search_results = soup.find_all("div", class_="search-result")
 
           if not search_results:
-            print("!!! No search results found even with Playwright. TCGplayer has likely changed their HTML structure.")
+            print("!!! No search results found even with Playwright.")
             exit(1)
 
-          print(f"Found {len(search_results)} card results on the page. Now parsing details...")
+          print(f"Found {len(search_results)} card results on the page. Now parsing details with enhanced logging...")
 
-          for card in search_results:
-              name_tag = card.find("span", class_="search-result__title")
-              price_tag = card.select_one("section.search-result__market-price span.price-point__price")
-              image_tag = card.select_one("a.search-result__img-wrapper img")
+          for i, card in enumerate(search_results):
+              print(f"\n--- Parsing Card #{i+1} ---")
+              try:
+                  # --- HTML SELECTORS ---
+                  name_tag = card.find("span", class_="search-result__title")
+                  price_tag = card.select_one("section.search-result__market-price span.price-point__price")
+                  image_tag = card.select_one("a.search-result__img-wrapper img")
 
-              name = name_tag.text.strip() if name_tag else None
-              price_text = price_tag.text.strip() if price_tag else "$0.00"
-              image_url = image_tag.get("src") if image_tag else None
-              
-              price_match = re.search(r'\$([\d,]+\.\d{2})', price_text)
-              price = float(price_match.group(1).replace(",", "")) if price_match else 0.0
+                  # --- DETAILED LOGGING ---
+                  print(f"  Name Tag Found: {'Yes' if name_tag else 'No'}")
+                  print(f"  Price Tag Found: {'Yes' if price_tag else 'No'}")
+                  print(f"  Image Tag Found: {'Yes' if image_tag else 'No'}")
 
-              if name and image_url:
-                  card_list.append({
-                      "name": name,
-                      "marketPrice": price,
-                      "imageUrl": image_url
-                  })
+                  name = name_tag.text.strip() if name_tag else None
+                  price_text = price_tag.text.strip() if price_tag else "$0.00"
+                  image_url = image_tag.get("src") if image_tag else None
+                  
+                  if name: print(f"  Name: {name}")
+                  if price_text: print(f"  Price Text: {price_text}")
+                  if image_url: print(f"  Image URL: {image_url}")
+
+                  price_match = re.search(r'\$([\d,]+\.\d{2})', price_text)
+                  price = float(price_match.group(1).replace(",", "")) if price_match else 0.0
+
+                  if name and image_url:
+                      card_list.append({
+                          "name": name,
+                          "marketPrice": price,
+                          "imageUrl": image_url
+                      })
+                      print("  --> SUCCESS: Card added to list.")
+                  else:
+                      print("  --> SKIPPING: Missing name or image URL.")
+              except Exception as e:
+                  print(f"  --> ERROR parsing this card: {e}")
+
 
           if card_list:
             df = pd.DataFrame(card_list)
             df.to_csv("shrouded_fable.csv", index=False)
-            print(f"✅ Successfully parsed and saved {len(df)} cards to shrouded_fable.csv")
+            print(f"\n✅ Successfully parsed and saved {len(df)} cards to shrouded_fable.csv")
           else:
-            print("!!! FAILED to parse any card data from the page. The internal HTML classes for name/price/image have likely changed again.")
+            print("\n!!! FAILED to parse any card data from the page. Check the detailed logs above to see which HTML tags were not found.")
             exit(1)
           EOF
 
+      # --- The rest of your workflow remains the same ---
       - name: Download or generate card images
         env:
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
