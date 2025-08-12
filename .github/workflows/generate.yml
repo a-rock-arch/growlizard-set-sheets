@@ -19,7 +19,7 @@ jobs:
 
       - name: Install Python Dependencies
         run: |
-          pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate playwright
+          pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate
 
       - name: Install Playwright Browsers
         run: |
@@ -33,22 +33,17 @@ jobs:
           import re
           from playwright.sync_api import sync_playwright
 
-          # --- Configuration ---
           URL = "https://www.tcgplayer.com/search/pokemon/sv09-shrouded-fable?productLineName=pokemon&setName=sv09-shrouded-fable&view=grid"
           
           print(f"Scraping URL: {URL}")
 
-          # --- Scrape the Page using a Headless Browser ---
           html_content = ""
           try:
               with sync_playwright() as p:
                   browser = p.chromium.launch(headless=True)
                   page = browser.new_page()
                   page.goto(URL, wait_until="domcontentloaded", timeout=60000)
-                  
-                  # Wait for the search results to be visible on the page. This is crucial.
                   page.wait_for_selector("div.search-result", timeout=30000)
-                  
                   html_content = page.content()
                   browser.close()
           except Exception as e:
@@ -59,7 +54,6 @@ jobs:
               print("!!! FAILED to retrieve page content with Playwright.")
               exit(1)
               
-          # --- Parse Card Data with BeautifulSoup (as before) ---
           soup = BeautifulSoup(html_content, "html.parser")
           card_list = []
           search_results = soup.find_all("div", class_="search-result")
@@ -68,20 +62,26 @@ jobs:
             print("!!! No search results found even with Playwright. TCGplayer has likely changed their HTML structure.")
             exit(1)
 
-          print(f"Found {len(search_results)} card results on the page.")
+          print(f"Found {len(search_results)} card results on the page. Now parsing details...")
 
           for card in search_results:
+              # --- UPDATED HTML SELECTORS ---
+              # TCGplayer changed its internal class names. These are the new, correct ones.
               name_tag = card.find("span", class_="search-result__title")
-              price_tag = card.find("span", class_="inventory__price-with-shipping")
-              image_tag = card.find("img", class_="search-result__image")
+              # The price is now inside a 'section' with a specific class.
+              price_tag = card.select_one("section.search-result__market-price span.price-point__price")
+              # The image is inside a link tag with a specific class.
+              image_tag = card.select_one("a.search-result__img-wrapper img")
 
               name = name_tag.text.strip() if name_tag else None
               price_text = price_tag.text.strip() if price_tag else "$0.00"
-              image_url = image_tag['src'] if image_tag else None
+              # Use '.get("src")' which is safer and won't error if the tag is found but the 'src' attribute is missing.
+              image_url = image_tag.get("src") if image_tag else None
               
               price_match = re.search(r'\$([\d,]+\.\d{2})', price_text)
               price = float(price_match.group(1).replace(",", "")) if price_match else 0.0
 
+              # This condition is what was failing before. It should now succeed.
               if name and image_url:
                   card_list.append({
                       "name": name,
@@ -89,17 +89,16 @@ jobs:
                       "imageUrl": image_url
                   })
 
-          # --- Save to CSV ---
           if card_list:
             df = pd.DataFrame(card_list)
             df.to_csv("shrouded_fable.csv", index=False)
-            print(f"✅ Successfully scraped {len(df)} cards and saved to shrouded_fable.csv")
+            print(f"✅ Successfully parsed and saved {len(df)} cards to shrouded_fable.csv")
           else:
-            print("!!! FAILED to parse any card data from the page.")
+            print("!!! FAILED to parse any card data from the page. The internal HTML classes for name/price/image have likely changed again.")
             exit(1)
           EOF
 
-      # --- The rest of your workflow remains the same ---
+      # --- The rest of your workflow remains the same and should now work ---
       - name: Download or generate card images
         env:
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
@@ -201,7 +200,7 @@ jobs:
               pdf.set_xy(x, y + card_h + 2)
               pdf.multi_cell(card_w, 4, f"{name}", align='C')
 
-              pdf.set_font("Arial', '', size=7)
+              pdf.set_font("Arial", '', size=7)
               pdf.set_xy(x, y + card_h + 7)
               pdf.multi_cell(card_w, 4, f"{price_text}", align='C')
 
