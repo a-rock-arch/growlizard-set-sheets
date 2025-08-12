@@ -1,27 +1,4 @@
-name: Generate GrowliZard Pokémon Sheet
-
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 12 * * *"
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-
-      - name: Install Python Dependencies
-        run: |
-          pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate
-
-      - name: Scrape TCGplayer Data
+- name: Scrape TCGplayer Data
         run: |
           python << 'EOF'
           import pandas as pd
@@ -31,11 +8,9 @@ jobs:
           import re
 
           # --- Configuration ---
-          SET_NAME = "Destined Rivals"
-          # Format set name for TCGplayer URL (e.g., "Destined Rivals" -> "destined-rivals")
-          URL_SET_NAME = SET_NAME.lower().replace(" ", "-")
-          # The URL for the set's search results page on TCGplayer
-          URL = f"https://www.tcgplayer.com/search/pokemon/{URL_SET_NAME}?productLineName=pokemon&setName={URL_SET_NAME}&view=grid"
+          # The URL construction was failing. We now hardcode the direct URL.
+          # To scrape a different set, find its search page on TCGplayer and paste the URL here.
+          URL = "https://www.tcgplayer.com/search/pokemon/sv10-destined-rivals?view=grid&productLineName=pokemon&setName=sv10-destined-rivals"
           
           print(f"Scraping URL: {URL}")
 
@@ -84,127 +59,10 @@ jobs:
           # --- Save to CSV ---
           if card_list:
             df = pd.DataFrame(card_list)
-            df.to_csv("destined_rivals.csv", index=False)
-            print(f"✅ Successfully scraped {len(df)} cards and saved to destined_rivals.csv")
+            # We'll name the CSV after the set we're actually scraping
+            df.to_csv("twilight_masquerade.csv", index=False)
+            print(f"✅ Successfully scraped {len(df)} cards and saved to twilight_masquerade.csv")
           else:
             print("!!! FAILED to parse any card data from the page.")
             exit(1)
           EOF
-
-      # --- The rest of your workflow remains the same ---
-      - name: Download or generate card images
-        env:
-          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
-        run: |
-          mkdir -p images
-          python << 'EOF'
-          import pandas as pd
-          import requests
-          import os
-          import replicate
-          from PIL import Image, ImageDraw, ImageFont
-          from io import BytesIO
-          csv_file = "destined_rivals.csv"
-          df = pd.read_csv(csv_file)
-
-          client = replicate.Client(api_token=os.environ["REPLICATE_API_TOKEN"])
-
-          for _, row in df.iterrows():
-              card_name = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
-              img_path = f"images/{card_name}.jpg"
-              image_url = row.get("imageUrl")
-
-              if os.path.exists(img_path):
-                  print(f"Skipping existing image: {card_name}")
-                  continue
-
-              if pd.notna(image_url):
-                  try:
-                      img_data = requests.get(image_url).content
-                      with open(img_path, "wb") as f:
-                          f.write(img_data)
-                      print(f"Downloaded official: {card_name}")
-                      continue
-                  except:
-                      print(f"Failed official image for: {card_name}")
-
-              print(f"Generating AI art for: {card_name}")
-              prompt = f"High quality digital painting of a Pokémon-style trading card featuring {row.get('name', 'a creature')}, full art, vibrant colors, no text, fantasy background, trading card art style"
-              try:
-                  output = client.run(
-                      "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
-                      input={"prompt": prompt, "width": 512, "height": 736}
-                  )
-                  img_data = requests.get(output[0]).content
-                  with open(img_path, "wb") as f:
-                      f.write(img_data)
-              except Exception as e:
-                  print(f"!!! AI generation failed for {card_name}: {e}")
-          EOF
-
-      - name: Generate printable PDF
-        run: |
-          python << 'EOF'
-          import os
-          import pandas as pd
-          from fpdf import FPDF
-          df = pd.read_csv("destined_rivals.csv")
-
-          pdf = FPDF('P', 'mm', 'A4')
-          pdf.set_auto_page_break(False)
-          pdf.add_font('Arial', '', '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf', uni=True)
-          pdf.add_font('Arial', 'B', '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf', uni=True)
-
-          card_w, card_h = 63, 88
-          margin_x, margin_y = 10, 10
-          gap_x, gap_y = 5, 15
-
-          card_data = []
-          for index, row in df.iterrows():
-              card_name_safe = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
-              img_path = f"images/{card_name_safe}.jpg"
-              if os.path.exists(img_path):
-                  card_data.append({
-                      "name": row["name"],
-                      "price": row.get("marketPrice"),
-                      "path": img_path
-                  })
-
-          for idx, card in enumerate(card_data):
-              if idx % 9 == 0:
-                  pdf.add_page()
-
-              col = (idx % 3)
-              row = ((idx % 9) // 3)
-              x = margin_x + col * (card_w + gap_x)
-              y = margin_y + row * (card_h + gap_y)
-
-              pdf.image(card["path"], x, y, card_w, card_h)
-              
-              pdf.set_draw_color(200, 200, 200)
-              pdf.rect(x, y, card_w, card_h)
-
-              name = card['name']
-              price = card['price']
-              price_text = f"${price:.2f}" if isinstance(price, (int, float)) else ""
-
-              pdf.set_font("Arial", 'B', size=8)
-              pdf.set_text_color(0, 0, 0)
-              pdf.set_xy(x, y + card_h + 2)
-              pdf.multi_cell(card_w, 4, f"{name}", align='C')
-
-              pdf.set_font("Arial", '', size=7)
-              pdf.set_xy(x, y + card_h + 7)
-              pdf.multi_cell(card_w, 4, f"{price_text}", align='C')
-
-          os.makedirs("printables", exist_ok=True)
-          pdf.output("printables/destined_rivals_placeholders.pdf")
-          EOF
-
-      - name: Commit results
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add destined_rivals.csv images/ printables/
-          git commit -m "Update GrowliZard CSV, images (with AI), and PDF sheets" || echo "No changes to commit"
-          git push
