@@ -53,7 +53,7 @@ jobs:
                   html_content = ""
                   try:
                       page.goto(paginated_url, wait_until="networkidle", timeout=60000)
-                      time.sleep(3) # Add a hard wait after network idle for extra safety
+                      time.sleep(3) 
                       
                       html_content = page.content()
 
@@ -164,6 +164,11 @@ jobs:
           import os
           import pandas as pd
           from fpdf import FPDF
+          from datetime import datetime
+
+          # Get the current time for the timestamp
+          timestamp = datetime.now().strftime("%B %d, %Y at %I:%M %p EDT")
+
           df = pd.read_csv("shrouded_fable.csv")
 
           pdf = FPDF('P', 'mm', 'A4')
@@ -171,15 +176,13 @@ jobs:
           try: 
               pdf.add_font('Arial', '', '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf', uni=True)
               pdf.add_font('Arial', 'B', '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf', uni=True)
-              pdf.set_font("Arial", 'B', size=8)
           except RuntimeError:
-              print("Default font not found, using helvetica.")
-              pdf.set_font("Helvetica", 'B', size=8)
-
+              print("Arial font not found, using helvetica.")
 
           card_w, card_h = 63, 88
-          margin_x, margin_y = 10, 10
-          gap_x, gap_y = 5, 15
+          margin_x = 10
+          margin_y = 30 # Increased top margin to make space for the new sub-header
+          gap_x, gap_y = 5, 20 # Increased vertical gap for the longer price text
 
           card_data = []
           for index, row in df.iterrows():
@@ -193,12 +196,26 @@ jobs:
                   })
 
           for idx, card in enumerate(card_data):
-              # CHANGED: New page every 6 cards for a 3x2 grid
               if idx % 6 == 0:
                   pdf.add_page()
+                  # --- ADD PAGE HEADER ---
+                  try:
+                      pdf.set_font("Arial", 'B', size=16)
+                  except RuntimeError:
+                      pdf.set_font("Helvetica", 'B', size=16)
+                  pdf.set_xy(0, 10)
+                  pdf.cell(0, 10, "Growlizard's Shrouded Fable Print List", align='C')
+
+                  # --- NEW: ADD TIMESTAMP SUB-HEADER ---
+                  try:
+                      pdf.set_font("Arial", '', size=9) # '' for regular style
+                  except RuntimeError:
+                      pdf.set_font("Helvetica", '', size=9)
+                  pdf.set_xy(0, 18)
+                  pdf.cell(0, 10, f"This is the current data as of {timestamp}", align='C')
+
 
               col = (idx % 3)
-              # CHANGED: Calculate row based on 6 items per page
               row = ((idx % 6) // 3) 
               x = margin_x + col * (card_w + gap_x)
               y = margin_y + row * (card_h + gap_y)
@@ -211,14 +228,16 @@ jobs:
                   pdf.set_xy(x, y + card_h / 2)
                   pdf.multi_cell(card_w, 4, "Image Error", align='C')
 
-              
               pdf.set_draw_color(200, 200, 200)
               pdf.rect(x, y, card_w, card_h)
 
               name = card['name']
               price = card['price']
-              price_text = f"${price:.2f}" if isinstance(price, (int, float)) else ""
               
+              # --- NEW: UPDATED PRICE TEXT ---
+              price_text = f"Current Market Price:\n${price:.2f}" if isinstance(price, (int, float)) else "Price not available"
+              
+              # Set font for card name
               try:
                   pdf.set_font("Arial", 'B', size=8)
               except RuntimeError:
@@ -227,11 +246,12 @@ jobs:
               pdf.set_xy(x, y + card_h + 2)
               pdf.multi_cell(card_w, 4, f"{name}", align='C')
 
+              # Set font for new price text
               try:
-                  pdf.set_font("Arial", '', size=7)
+                  pdf.set_font("Arial", 'B', size=8) 
               except RuntimeError:
-                  pdf.set_font("Helvetica", '', size=7)
-              pdf.set_xy(x, y + card_h + 7)
+                  pdf.set_font("Helvetica", 'B', size=8)
+              pdf.set_xy(x, y + card_h + 9) # Adjusted y-position for new font size
               pdf.multi_cell(card_w, 4, f"{price_text}", align='C')
 
           os.makedirs("printables", exist_ok=True)
