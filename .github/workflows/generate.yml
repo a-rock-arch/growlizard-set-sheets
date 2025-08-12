@@ -1,9 +1,9 @@
-name: Generate GrowliZard Pokémon Sheets
+name: Generate GrowliZard Pokémon Sheet
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Allows you to run it manually
   schedule:
-    - cron: "0 12 * * *"
+    - cron: "0 12 * * *" # Runs daily at 12:00 UTC
 
 jobs:
   build:
@@ -17,12 +17,20 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Install dependencies
+      - name: Install Python Dependencies
         run: |
-          pip install git+https://github.com/CptSpaceToaster/tcgcsv.git pandas requests Pillow fpdf2 replicate
+          # We install the libraries needed by tcgcsv and our own scripts
+          pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate
+
+      - name: Clone tcgcsv Repository
+        run: |
+          # UPDATED: Clones the repo from the CptSpaceToaster link
+          git clone https://github.com/CptSpaceToaster/tcgcsv.git
 
       - name: Generate CSV from TCGplayer
-        run: tcgcsv "Destined Rivals" --output destined_rivals.csv
+        run: |
+          # We run the script directly using 'python' and point to its new location
+          python tcgcsv/tcgcsv.py "Destined Rivals" --output destined_rivals.csv
 
       - name: Download or generate card images
         env:
@@ -36,7 +44,6 @@ jobs:
           import replicate
           from PIL import Image, ImageDraw, ImageFont
           from io import BytesIO
-
           csv_file = "destined_rivals.csv"
           df = pd.read_csv(csv_file)
 
@@ -44,9 +51,13 @@ jobs:
           client = replicate.Client(api_token=os.environ["REPLICATE_API_TOKEN"])
 
           for _, row in df.iterrows():
-              card_name = row.get("name", "unknown").replace("/", "_").replace(" ", "_")
+              card_name = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
               img_path = f"images/{card_name}.jpg"
               image_url = row.get("imageUrl")
+
+              if os.path.exists(img_path):
+                  print(f"Skipping existing image: {card_name}")
+                  continue
 
               if pd.notna(image_url):
                   try:
@@ -61,13 +72,16 @@ jobs:
               # Generate AI placeholder
               print(f"Generating AI art for: {card_name}")
               prompt = f"High quality digital painting of a Pokémon-style trading card featuring {row.get('name', 'a creature')}, full art, vibrant colors, no text, fantasy background, trading card art style"
-              output = client.run(
-                  "stability-ai/stable-diffusion-xl:latest",
-                  input={"prompt": prompt, "width": 512, "height": 736}
-              )
-              img_data = requests.get(output[0]).content
-              with open(img_path, "wb") as f:
-                  f.write(img_data)
+              try:
+                  output = client.run(
+                      "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+                      input={"prompt": prompt, "width": 512, "height": 736}
+                  )
+                  img_data = requests.get(output[0]).content
+                  with open(img_path, "wb") as f:
+                      f.write(img_data)
+              except Exception as e:
+                  print(f"!!! AI generation failed for {card_name}: {e}")
           EOF
 
       - name: Generate printable PDF
@@ -76,20 +90,31 @@ jobs:
           import os
           import pandas as pd
           from fpdf import FPDF
-
           df = pd.read_csv("destined_rivals.csv")
 
           pdf = FPDF('P', 'mm', 'A4')
           pdf.set_auto_page_break(False)
+          pdf.add_font('Arial', '', '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf', uni=True)
+          pdf.add_font('Arial', 'B', '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf', uni=True)
+
 
           card_w, card_h = 63, 88
           margin_x, margin_y = 10, 10
-          gap_x, gap_y = 5, 15
+          gap_x, gap_y = 5, 15  # extra gap for name/price text
 
-          images_dir = "images"
-          img_files = sorted([f for f in os.listdir(images_dir) if f.endswith(".jpg")])
+          # Associate images with dataframe rows to keep them in order
+          card_data = []
+          for index, row in df.iterrows():
+              card_name_safe = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
+              img_path = f"images/{card_name_safe}.jpg"
+              if os.path.exists(img_path):
+                  card_data.append({
+                      "name": row["name"],
+                      "price": row.get("marketPrice"),
+                      "path": img_path
+                  })
 
-          for idx, img_file in enumerate(img_files):
+          for idx, card in enumerate(card_data):
               if idx % 9 == 0:
                   pdf.add_page()
 
@@ -98,18 +123,26 @@ jobs:
               x = margin_x + col * (card_w + gap_x)
               y = margin_y + row * (card_h + gap_y)
 
-              img_path = os.path.join(images_dir, img_file)
-              pdf.image(img_path, x, y, card_w, card_h)
+              pdf.image(card["path"], x, y, card_w, card_h)
 
+              # Draw cut lines
               pdf.set_draw_color(200, 200, 200)
               pdf.rect(x, y, card_w, card_h)
 
-              name = df.iloc[idx]['name'] if idx < len(df) else "Unknown"
-              price = df.iloc[idx]['marketPrice'] if 'marketPrice' in df.columns and idx < len(df) else ""
-              pdf.set_font("Arial", size=8)
+              # Add card name + price
+              name = card['name']
+              price = card['price']
+              price_text = f"${price:.2f}" if isinstance(price, (int, float)) else ""
+
+              pdf.set_font("Arial", 'B', size=8)
               pdf.set_text_color(0, 0, 0)
               pdf.set_xy(x, y + card_h + 2)
-              pdf.multi_cell(card_w, 4, f"{name}\n${price}", align='C')
+              pdf.multi_cell(card_w, 4, f"{name}", align='C')
+
+              pdf.set_font("Arial", '', size=7)
+              pdf.set_xy(x, y + card_h + 7)
+              pdf.multi_cell(card_w, 4, f"{price_text}", align='C')
+
 
           os.makedirs("printables", exist_ok=True)
           pdf.output("printables/destined_rivals_placeholders.pdf")
@@ -120,5 +153,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add destined_rivals.csv images/ printables/
-          git commit -m "Update GrowliZard CSV, images (with AI), and PDF sheets" || echo "No changes"
+          git commit -m "Update GrowliZard CSV, images (with AI), and PDF sheets" || echo "No changes to commit"
           git push
