@@ -48,8 +48,8 @@ jobs:
           soup = BeautifulSoup(html_content, "html.parser")
           set_list = []
           
-          # FIXED: Updated the selector to find the set filter dropdown by its new 'data-testid' attribute.
-          set_filter = soup.find("select", {"data-testid": "product-filter__set"})
+          # FIXED: Updated the selector to find the set filter dropdown by its 'name' attribute.
+          set_filter = soup.find("select", {"name": "setName"})
           if not set_filter:
               print("!!! Could not find the set filter dropdown on the page.")
               exit(1)
