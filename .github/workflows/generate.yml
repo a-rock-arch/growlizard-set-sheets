@@ -32,7 +32,6 @@ jobs:
           import json
           import os
 
-          # This page contains the filter with all set names
           URL = "https://www.tcgplayer.com/search/pokemon/product?productLineName=pokemon&productTypeName=Cards&view=grid"
           
           print(f"Discovering sets from: {URL}")
@@ -52,21 +51,18 @@ jobs:
           soup = BeautifulSoup(html_content, "html.parser")
           set_list = []
           
-          # Find the dropdown/select element for the "Set" filter
-          set_filter = soup.find("select", {"name": "setName"})
+          # FIXED: Updated the selector to find the set filter dropdown by its new 'data-testid' attribute.
+          set_filter = soup.find("select", {"data-testid": "product-filter__set"})
           if not set_filter:
               print("!!! Could not find the set filter dropdown on the page.")
               exit(1)
 
-          # Loop through all the <option> tags within the dropdown
           for option in set_filter.find_all("option"):
               set_url_name = option.get("value")
               set_display_name = option.text.strip()
               
-              # We only want real sets, not empty values or placeholders
               if set_url_name and set_display_name:
-                  # Create a simple filter name from the display name (e.g., "Sword & Shield: Shrouded Fable" -> "Shrouded")
-                  # This makes our existing filter logic work universally
+                  # Create a simple filter name (e.g., "Sword & Shield: Shrouded Fable" -> "Shrouded")
                   filter_name = set_display_name.split(': ')[-1].split(' ')[0]
                   
                   set_list.append({
@@ -75,11 +71,9 @@ jobs:
                       "set_display_name": set_display_name
                   })
 
-          # Convert the list to a JSON string, which is how we pass it to the next job
           json_output = json.dumps(set_list)
           print(f"Discovered {len(set_list)} sets.")
           
-          # This is a special syntax to set the output for the job
           with open(os.environ['GITHUB_OUTPUT'], 'a') as hf:
               print(f'matrix={json_output}', file=hf)
           EOF
@@ -92,9 +86,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # This command takes the JSON output from the first job and uses it to create parallel jobs
         set: ${{ fromJson(needs.discover-sets.outputs.sets) }}
-      fail-fast: false # Allows other jobs to continue even if one set fails
+      fail-fast: false
 
     steps:
       - name: Checkout repo
@@ -113,7 +106,6 @@ jobs:
           
       - name: Scrape TCGplayer Data for ${{ matrix.set.set_display_name }}
         env:
-          # Use the matrix variables for the current job
           SET_URL_NAME: ${{ matrix.set.set_url_name }}
           SET_FILTER_NAME: ${{ matrix.set.set_filter_name }}
         run: |
@@ -197,7 +189,6 @@ jobs:
             print(f"✅ Successfully parsed and saved a total of {len(df)} cards to {CSV_FILENAME}")
           else:
             print(f"!!! FAILED to parse any card data for this set.")
-            # We exit gracefully so it doesn't stop the other jobs
             exit(0)
           EOF
 
@@ -218,7 +209,6 @@ jobs:
           set_url_name = os.environ.get('SET_URL_NAME')
           csv_file = f"{set_url_name}.csv"
           
-          # If the CSV doesn't exist (because the previous step failed), exit gracefully.
           if not os.path.exists(csv_file):
               print(f"CSV file not found for {set_url_name}. Skipping image downloads.")
               exit(0)
@@ -233,7 +223,7 @@ jobs:
               image_url = row.get("imageUrl")
 
               if os.path.exists(img_path):
-                  continue # Silently skip existing images to keep logs clean
+                  continue
 
               if pd.notna(image_url):
                   try:
@@ -243,7 +233,7 @@ jobs:
                   except Exception as e:
                       print(f"Failed official image for {card_name}: {e}")
 
-              else: # Only generate AI art if image_url is missing
+              else: 
                   print(f"Generating AI art for: {card_name}")
                   prompt = f"High quality digital painting of a Pokémon-style trading card featuring {row.get('name', 'a creature')}, full art, vibrant colors, no text, fantasy background, trading card art style"
                   try:
@@ -364,16 +354,21 @@ jobs:
           EOF
 
       - name: Commit results
-        env:
-          SET_URL_NAME: ${{ matrix.set.set_url_name }}
         run: |
           set_url_name=$(echo "${{ matrix.set.set_url_name }}")
           csv_file="${set_url_name}.csv"
           pdf_file="printables/${set_url_name}_placeholders.pdf"
 
+          # Only proceed if the CSV file was actually created
+          if [ ! -f "$csv_file" ]; then
+            echo "No CSV found for ${set_url_name}, skipping commit."
+            exit 0
+          fi
+          
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          # Add the specific files for this set
-          git add "$csv_file" images/ "$pdf_file"
-          git commit -m "Update GrowliZard data for set: ${set_url_name}" || echo "No changes to commit"
+          
+          # We add all new images, but only the specific CSV and PDF for this job
+          git add images/ "$csv_file" "$pdf_file"
+          git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit for ${{ matrix.set.set_display_name }}"
           git push
