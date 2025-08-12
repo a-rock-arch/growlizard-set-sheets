@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install git+https://github.com/kamronbatman/tcgcsv.git pandas requests Pillow fpdf2
+          pip install git+https://github.com/CptSpaceToaster/tcgcsv.git pandas requests Pillow fpdf2
 
       - name: Generate CSV from TCGplayer
         run: tcgcsv "Destined Rivals" --output destined_rivals.csv
