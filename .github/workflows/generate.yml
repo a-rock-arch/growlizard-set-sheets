@@ -19,45 +19,55 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install git+https://github.com/CptSpaceToaster/tcgcsv.git pandas requests Pillow fpdf2
+          pip install git+https://github.com/CptSpaceToaster/tcgcsv.git pandas requests Pillow fpdf2 replicate
 
       - name: Generate CSV from TCGplayer
         run: tcgcsv "Destined Rivals" --output destined_rivals.csv
 
       - name: Download or generate card images
+        env:
+          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
         run: |
           mkdir -p images
           python << 'EOF'
           import pandas as pd
           import requests
           import os
+          import replicate
           from PIL import Image, ImageDraw, ImageFont
+          from io import BytesIO
 
           csv_file = "destined_rivals.csv"
           df = pd.read_csv(csv_file)
 
+          # Replicate client
+          client = replicate.Client(api_token=os.environ["REPLICATE_API_TOKEN"])
+
           for _, row in df.iterrows():
-              image_url = row.get("imageUrl")
               card_name = row.get("name", "unknown").replace("/", "_").replace(" ", "_")
               img_path = f"images/{card_name}.jpg"
+              image_url = row.get("imageUrl")
 
               if pd.notna(image_url):
                   try:
                       img_data = requests.get(image_url).content
                       with open(img_path, "wb") as f:
                           f.write(img_data)
-                      print(f"Downloaded: {card_name}")
+                      print(f"Downloaded official: {card_name}")
                       continue
                   except:
-                      print(f"Image failed for: {card_name}")
+                      print(f"Failed official image for: {card_name}")
 
-              # Create simple AI-style placeholder (non-infringing)
-              placeholder = Image.new("RGB", (300, 420), (245, 245, 245))
-              draw = ImageDraw.Draw(placeholder)
-              font = ImageFont.load_default()
-              draw.text((20, 200), "Pokémon-Style Art", fill=(0,0,0), font=font)
-              draw.text((20, 220), "Coming Soon", fill=(0,0,0), font=font)
-              placeholder.save(img_path)
+              # Generate AI placeholder
+              print(f"Generating AI art for: {card_name}")
+              prompt = f"High quality digital painting of a Pokémon-style trading card featuring {row.get('name', 'a creature')}, full art, vibrant colors, no text, fantasy background, trading card art style"
+              output = client.run(
+                  "stability-ai/stable-diffusion-xl:latest",
+                  input={"prompt": prompt, "width": 512, "height": 736}
+              )
+              img_data = requests.get(output[0]).content
+              with open(img_path, "wb") as f:
+                  f.write(img_data)
           EOF
 
       - name: Generate printable PDF
@@ -66,7 +76,6 @@ jobs:
           import os
           import pandas as pd
           from fpdf import FPDF
-          from PIL import Image
 
           df = pd.read_csv("destined_rivals.csv")
 
@@ -75,7 +84,7 @@ jobs:
 
           card_w, card_h = 63, 88
           margin_x, margin_y = 10, 10
-          gap_x, gap_y = 5, 15  # extra gap for name/price text
+          gap_x, gap_y = 5, 15
 
           images_dir = "images"
           img_files = sorted([f for f in os.listdir(images_dir) if f.endswith(".jpg")])
@@ -92,11 +101,9 @@ jobs:
               img_path = os.path.join(images_dir, img_file)
               pdf.image(img_path, x, y, card_w, card_h)
 
-              # Draw cut lines
               pdf.set_draw_color(200, 200, 200)
               pdf.rect(x, y, card_w, card_h)
 
-              # Add card name + price
               name = df.iloc[idx]['name'] if idx < len(df) else "Unknown"
               price = df.iloc[idx]['marketPrice'] if 'marketPrice' in df.columns and idx < len(df) else ""
               pdf.set_font("Arial", size=8)
@@ -113,5 +120,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add destined_rivals.csv images/ printables/
-          git commit -m "Update GrowliZard CSV, images, and PDF sheets" || echo "No changes"
+          git commit -m "Update GrowliZard CSV, images (with AI), and PDF sheets" || echo "No changes"
           git push
