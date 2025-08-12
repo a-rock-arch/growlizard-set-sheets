@@ -53,23 +53,15 @@ jobs:
                   html_content = ""
                   try:
                       page.goto(paginated_url, wait_until="domcontentloaded", timeout=60000)
-                      page.wait_for_selector("div.search-result, div.search-feedback", timeout=30000)
                       
-                      # This robust loop scrolls until the page stops growing, ensuring all images load.
-                      print("Scrolling to load all images...")
-                      last_height = page.evaluate("document.body.scrollHeight")
-                      while True:
-                          page.evaluate("window.scrollTo(0, document.body.scrollHeight);")
-                          time.sleep(1.5) # Wait for content to load
-                          new_height = page.evaluate("document.body.scrollHeight")
-                          if new_height == last_height:
-                              break
-                          last_height = new_height
+                      # This is the definitive fix for lazy loading.
+                      # It waits until all background network activity has stopped.
+                      print("Waiting for network to be idle to ensure all images are loaded...")
+                      page.wait_for_load_state('networkidle', timeout=30000)
                       
                       html_content = page.content()
 
                   except Exception as e:
-                      # This can happen on the last page if it times out waiting for results that aren't there.
                       print(f"Browser operation finished or failed on page {page_number}: {e}")
                       break
 
