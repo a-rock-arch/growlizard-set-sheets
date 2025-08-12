@@ -17,9 +17,17 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Install Dependencies and Browsers
+      - name: Install All Dependencies
         run: |
-          pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate
+          # Upgrade pip for reliability
+          python -m pip install --upgrade pip
+          # Install all required python packages
+          pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate playwright
+          # Verify the playwright installation to catch errors immediately
+          echo "Verifying playwright installation..."
+          pip show playwright
+          # Install the browser binaries
+          echo "Installing browser dependencies..."
           python -m playwright install --with-deps
           
       - name: Scrape TCGplayer Data
@@ -30,7 +38,6 @@ jobs:
           import re
           from playwright.sync_api import sync_playwright
 
-          # Using the Shrouded Fable set URL which has good data.
           URL = "https://www.tcgplayer.com/search/pokemon/sv09-shrouded-fable?productLineName=pokemon&setName=sv09-shrouded-fable&view=grid"
           
           print(f"Scraping URL: {URL}")
@@ -56,14 +63,16 @@ jobs:
           card_list = []
           search_results = soup.find_all("div", class_="search-result")
 
+          if not search_results:
+            print("!!! No search results found even with Playwright. TCGplayer has likely changed their HTML structure.")
+            exit(1)
+
           print(f"Found {len(search_results)} card results on the page. Now parsing with final selectors...")
 
           for card in search_results:
-              # --- FINAL, CORRECTED HTML SELECTORS ---
-              # Based on the HTML you provided, these are the correct tags and classes.
               name_tag = card.find("span", class_="product-card__title")
               price_tag = card.find("span", class_="product-card__market-price--value")
-              image_tag = card.find("img") # The first img tag in the container is the card image.
+              image_tag = card.find("img")
 
               name = name_tag.text.strip() if name_tag else None
               price_text = price_tag.text.strip() if price_tag else "$0.00"
@@ -148,7 +157,7 @@ jobs:
 
           pdf = FPDF('P', 'mm', 'A4')
           pdf.set_auto_page_break(False)
-          try: # Add fonts, handling potential errors in different environments
+          try: 
               pdf.add_font('Arial', '', '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf', uni=True)
               pdf.add_font('Arial', 'B', '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf', uni=True)
               pdf.set_font("Arial", 'B', size=8)
