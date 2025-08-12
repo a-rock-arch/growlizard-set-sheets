@@ -32,8 +32,9 @@ jobs:
           from playwright.sync_api import sync_playwright
           import time
 
-          BASE_URL = "https://www.tcgplayer.com/search/pokemon/sv09-shrouded-fable?productLineName=pokemon&setName=sv09-shrouded-fable&view=grid"
-          TARGET_SET_NAME = "Shrouded Fable" 
+          # Using your new, more precise URL with the productTypeName=Cards filter.
+          BASE_URL = "https://www.tcgplayer.com/search/pokemon/sv-shrouded-fable?productLineName=pokemon&setName=sv-shrouded-fable&productTypeName=Cards&view=grid"
+          TARGET_SET_NAME = "Shrouded Fable"
           
           all_cards_list = []
           page_number = 1
@@ -92,7 +93,6 @@ jobs:
                       price_match = re.search(r'\$([\d,]+\.\d{2})', price_text)
                       price = float(price_match.group(1).replace(",", "")) if price_match else 0.0
 
-                      # FIXED: Restored the complete, correct 'if' statement
                       if name and image_url and "data:image/gif" not in image_url and TARGET_SET_NAME in set_name:
                           all_cards_list.append({
                               "name": name,
