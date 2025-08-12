@@ -30,41 +30,49 @@ jobs:
           from bs4 import BeautifulSoup
           import re
           from playwright.sync_api import sync_playwright
-          import time # Import the time module for delays
+          import time
 
-          # --- Configuration ---
           BASE_URL = "https://www.tcgplayer.com/search/pokemon/sv09-shrouded-fable?productLineName=pokemon&setName=sv09-shrouded-fable&view=grid"
           
           all_cards_list = []
           page_number = 1
 
-          print("Starting scraper with pagination...")
+          print("Starting scraper with pagination and scrolling...")
 
-          # --- Main Pagination Loop ---
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               page = browser.new_page()
 
               while True:
-                  # Construct URL for the current page
                   paginated_url = f"{BASE_URL}&page={page_number}"
                   print(f"Scraping URL: {paginated_url}")
                   
-                  # --- Scrape the current page ---
                   html_content = ""
                   try:
                       page.goto(paginated_url, wait_until="domcontentloaded", timeout=60000)
-                      # Wait for either the results or a "no results" message to appear
                       page.wait_for_selector("div.search-result, div.search-feedback", timeout=30000)
+                      
+                      # --- LAZY LOADING FIX ---
+                      # Scroll down the page to trigger all images to load.
+                      print("Scrolling down to trigger lazy-loaded images...")
+                      last_height = page.evaluate("document.body.scrollHeight")
+                      while True:
+                          page.evaluate("window.scrollTo(0, document.body.scrollHeight);")
+                          time.sleep(1) # Wait for images to load
+                          new_height = page.evaluate("document.body.scrollHeight")
+                          if new_height == last_height:
+                              break
+                          last_height = new_height
+                      
                       html_content = page.content()
+
                   except Exception as e:
                       print(f"!!! FAILED during Playwright browser operation on page {page_number}: {e}")
-                      break # Exit loop if a page fails to load
+                      break
 
                   soup = BeautifulSoup(html_content, "html.parser")
                   search_results = soup.find_all("div", class_="search-result")
 
-                  # If no results are found on the page, we've reached the end
                   if not search_results:
                     print(f"No more search results found on page {page_number}. Ending scrape.")
                     break
@@ -83,20 +91,18 @@ jobs:
                       price_match = re.search(r'\$([\d,]+\.\d{2})', price_text)
                       price = float(price_match.group(1).replace(",", "")) if price_match else 0.0
 
-                      if name and image_url:
+                      if name and image_url and not "data:image/gif" in image_url:
                           all_cards_list.append({
                               "name": name,
                               "marketPrice": price,
                               "imageUrl": image_url
                           })
                   
-                  # Move to the next page and add a polite delay
                   page_number += 1
-                  time.sleep(1) # Wait 1 second before scraping the next page
+                  time.sleep(1) 
 
               browser.close()
 
-          # --- Save All Scraped Data to CSV ---
           if all_cards_list:
             df = pd.DataFrame(all_cards_list)
             df.to_csv("shrouded_fable.csv", index=False)
