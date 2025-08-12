@@ -19,20 +19,23 @@ jobs:
 
       - name: Install Python Dependencies
         run: |
-          # We install the libraries needed by tcgcsv and our own scripts
           pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate
 
       - name: Clone tcgcsv Repository
         run: |
-          # UPDATED: Clones the repo from the CptSpaceToaster link
           git clone https://github.com/CptSpaceToaster/tcgcsv.git
+
+      - name: List files for debugging # <<< NEW STEP
+        run: ls -R
+        # This command lists all files and folders so we can see the exact path.
 
       - name: Generate CSV from TCGplayer
         run: |
-          # We run the script directly using 'python' and point to its new location
+          # We may need to correct the path in the line below based on the debugging output
           python tcgcsv/tcgcsv.py "Destined Rivals" --output destined_rivals.csv
 
       - name: Download or generate card images
+        # ... (the rest of your file remains the same) ...
         env:
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
         run: |
@@ -150,8 +153,4 @@ jobs:
 
       - name: Commit results
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add destined_rivals.csv images/ printables/
-          git commit -m "Update GrowliZard CSV, images (with AI), and PDF sheets" || echo "No changes to commit"
-          git push
+          git config --global user.name "github-actions
