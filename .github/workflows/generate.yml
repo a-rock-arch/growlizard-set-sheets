@@ -351,12 +351,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # This is the correct and robust sequence for committing from parallel jobs.
-          # 1. Add new files to the staging area
           git add images/ "$csv_file" "$pdf_file"
-          # 2. Commit the new files locally
           git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit"
-          # 3. Pull remote changes, rebasing your local commit on top
           git pull --rebase
-          # 4. Push the final, combined history
           git push
