@@ -1,15 +1,104 @@
-name: Generate GrowliZard Pokémon Sheet
+name: Generate All Pokémon Set Sheets
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "0 12 * * *"
+    - cron: "0 12 * * *" # Runs daily at 12:00 UTC
+  workflow_dispatch:
 
 jobs:
-  build:
+  discover-sets:
+    runs-on: ubuntu-latest
+    outputs:
+      sets: ${{ steps.get_sets.outputs.matrix }}
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install Dependencies and Browsers
+        run: |
+          python -m pip install --upgrade pip
+          pip install beautifulsoup4 playwright
+          python -m playwright install --with-deps
+      - name: Discover All Sets from TCGplayer
+        id: get_sets
+        run: |
+          python << 'EOF'
+          from bs4 import BeautifulSoup
+          from playwright.sync_api import sync_playwright
+          import json
+          import os
+
+          URL = "https://www.tcgplayer.com/search/pokemon/product?productLineName=pokemon&productTypeName=Cards&view=grid"
+          
+          print(f"Discovering sets from: {URL}")
+
+          html_content = ""
+          try:
+              with sync_playwright() as p:
+                  browser = p.chromium.launch(headless=True)
+                  page = browser.new_page()
+                  page.goto(URL, wait_until="domcontentloaded", timeout=60000)
+                  
+                  # NEW: Explicitly wait for the filter container to be visible
+                  print("Waiting for search filter UI to render...")
+                  page.wait_for_selector("div.search-filters", timeout=30000)
+                  
+                  print("Waiting for network to be idle...")
+                  page.wait_for_load_state('networkidle', timeout=60000)
+                  
+                  html_content = page.content()
+                  browser.close()
+          except Exception as e:
+              print(f"!!! FAILED to discover sets during Playwright operation: {e}")
+              exit(1)
+
+          soup = BeautifulSoup(html_content, "html.parser")
+          set_list = []
+          
+          # NEW: Try multiple common selectors to find the dropdown
+          print("Attempting to find set filter dropdown...")
+          set_filter = soup.find("select", {"name": "setName"})
+          if not set_filter:
+              print("Selector 'name=setName' failed. Trying 'data-testid=product-filter__set'...")
+              set_filter = soup.find("select", {"data-testid": "product-filter__set"})
+
+          if not set_filter:
+              print("!!! All attempts to find the set filter dropdown failed. TCGplayer has likely changed their HTML again.")
+              exit(1)
+          
+          print("Successfully found set filter dropdown.")
+
+          for option in set_filter.find_all("option"):
+              set_url_name = option.get("value")
+              set_display_name = option.text.strip()
+              
+              if set_url_name and set_display_name:
+                  filter_name = set_display_name.split(': ')[-1].split(' ')[0]
+                  
+                  set_list.append({
+                      "set_url_name": set_url_name,
+                      "set_filter_name": filter_name,
+                      "set_display_name": set_display_name
+                  })
+
+          json_output = json.dumps(set_list)
+          print(f"Discovered {len(set_list)} sets.")
+          
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as hf:
+              print(f'matrix={json_output}', file=hf)
+          EOF
+
+  generate-sheets:
+    needs: discover-sets
     permissions:
       contents: write
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        set: ${{ fromJson(needs.discover-sets.outputs.sets) }}
+      fail-fast: false
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -25,7 +114,10 @@ jobs:
           pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate playwright
           python -m playwright install --with-deps
           
-      - name: Scrape TCGplayer Data
+      - name: Scrape TCGplayer Data for ${{ matrix.set.set_display_name }}
+        env:
+          SET_URL_NAME: ${{ matrix.set.set_url_name }}
+          SET_FILTER_NAME: ${{ matrix.set.set_filter_name }}
         run: |
           python << 'EOF'
           import pandas as pd
@@ -33,9 +125,13 @@ jobs:
           import re
           from playwright.sync_api import sync_playwright
           import time
+          import os
 
-          BASE_URL = "https://www.tcgplayer.com/search/pokemon/sv-shrouded-fable?productLineName=pokemon&setName=sv-shrouded-fable&productTypeName=Cards&view=grid"
-          TARGET_SET_NAME = "Shrouded"
+          set_url_name = os.environ.get('SET_URL_NAME')
+          TARGET_SET_NAME = os.environ.get('SET_FILTER_NAME')
+          
+          BASE_URL = f"https://www.tcgplayer.com/search/pokemon/{set_url_name}?productLineName=pokemon&setName={set_url_name}&productTypeName=Cards&view=grid"
+          CSV_FILENAME = f"{set_url_name}.csv"
           
           all_cards_list = []
           page_number = 1
@@ -44,7 +140,7 @@ jobs:
 
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
-              page = browser.new_page()
+              page = browser.new_page(viewport={"width": 1920, "height": 1080})
 
               while True:
                   paginated_url = f"{BASE_URL}&page={page_number}"
@@ -52,25 +148,9 @@ jobs:
                   
                   html_content = ""
                   try:
-                      page.goto(paginated_url, wait_until="domcontentloaded", timeout=60000)
-                      
-                      # --- DEFINITIVE LAZY LOADING FIX ---
-                      # This combines both scrolling and waiting for the network to be idle.
-                      print("Scrolling to trigger lazy-load...")
-                      last_height = page.evaluate("document.body.scrollHeight")
-                      while True:
-                          page.evaluate("window.scrollTo(0, document.body.scrollHeight);")
-                          time.sleep(1) # Give scroll time to trigger new requests
-                          new_height = page.evaluate("document.body.scrollHeight")
-                          if new_height == last_height:
-                              break
-                          last_height = new_height
-
-                      print("Waiting for network to be idle to ensure all images are loaded...")
-                      page.wait_for_load_state('networkidle', timeout=30000)
-                      
+                      page.goto(paginated_url, wait_until="networkidle", timeout=60000)
+                      time.sleep(3)
                       html_content = page.content()
-
                   except Exception as e:
                       print(f"Browser operation finished or failed on page {page_number}: {e}")
                       break
@@ -115,16 +195,17 @@ jobs:
 
           if all_cards_list:
             df = pd.DataFrame(all_cards_list)
-            df.to_csv("shrouded_fable.csv", index=False)
-            print(f"✅ Successfully parsed and saved a total of {len(df)} cards to shrouded_fable.csv")
+            df.to_csv(CSV_FILENAME, index=False)
+            print(f"✅ Successfully parsed and saved a total of {len(df)} cards to {CSV_FILENAME}")
           else:
-            print("!!! FAILED to parse any card data from any page.")
-            exit(1)
+            print(f"!!! FAILED to parse any card data for this set.")
+            exit(0)
           EOF
 
       - name: Download or generate card images
         env:
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+          SET_URL_NAME: ${{ matrix.set.set_url_name }}
         run: |
           mkdir -p images
           python << 'EOF'
@@ -134,7 +215,14 @@ jobs:
           import replicate
           from PIL import Image
           from io import BytesIO
-          csv_file = "shrouded_fable.csv"
+
+          set_url_name = os.environ.get('SET_URL_NAME')
+          csv_file = f"{set_url_name}.csv"
+          
+          if not os.path.exists(csv_file):
+              print(f"CSV file not found for {set_url_name}. Skipping image downloads.")
+              exit(0)
+              
           df = pd.read_csv(csv_file)
 
           client = replicate.Client(api_token=os.environ["REPLICATE_API_TOKEN"])
@@ -145,7 +233,6 @@ jobs:
               image_url = row.get("imageUrl")
 
               if os.path.exists(img_path):
-                  print(f"Skipping existing image: {card_name}")
                   continue
 
               if pd.notna(image_url):
@@ -153,47 +240,61 @@ jobs:
                       img_data = requests.get(image_url, timeout=15).content
                       with open(img_path, "wb") as f:
                           f.write(img_data)
-                      print(f"Downloaded official: {card_name}")
-                      continue
                   except Exception as e:
                       print(f"Failed official image for {card_name}: {e}")
 
-              print(f"Generating AI art for: {card_name}")
-              prompt = f"High quality digital painting of a Pokémon-style trading card featuring {row.get('name', 'a creature')}, full art, vibrant colors, no text, fantasy background, trading card art style"
-              try:
-                  output = client.run(
-                      "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
-                      input={"prompt": prompt, "width": 512, "height": 736}
-                  )
-                  img_data = requests.get(output[0], timeout=30).content
-                  with open(img_path, "wb") as f:
-                      f.write(img_data)
-              except Exception as e:
-                  print(f"!!! AI generation failed for {card_name}: {e}")
+              else: 
+                  print(f"Generating AI art for: {card_name}")
+                  prompt = f"High quality digital painting of a Pokémon-style trading card featuring {row.get('name', 'a creature')}, full art, vibrant colors, no text, fantasy background, trading card art style"
+                  try:
+                      output = client.run(
+                          "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+                          input={"prompt": prompt, "width": 512, "height": 736}
+                      )
+                      img_data = requests.get(output[0], timeout=30).content
+                      with open(img_path, "wb") as f:
+                          f.write(img_data)
+                  except Exception as e:
+                      print(f"!!! AI generation failed for {card_name}: {e}")
           EOF
 
       - name: Generate printable PDF
+        env:
+          SET_URL_NAME: ${{ matrix.set.set_url_name }}
+          SET_DISPLAY_NAME: ${{ matrix.set.set_display_name }}
         run: |
           python << 'EOF'
           import os
           import pandas as pd
           from fpdf import FPDF
-          df = pd.read_csv("shrouded_fable.csv")
+          from datetime import datetime
+
+          set_url_name = os.environ.get('SET_URL_NAME')
+          set_display_name = os.environ.get('SET_DISPLAY_NAME')
+          
+          timestamp = datetime.now().strftime("%B %d, %Y at %I:%M %p EDT")
+          csv_file = f"{set_url_name}.csv"
+          pdf_filename = f"{set_url_name}_placeholders.pdf"
+          pdf_title = f"Growlizard's {set_display_name} Print List"
+          
+          if not os.path.exists(csv_file):
+              print(f"CSV file not found for {set_url_name}. Skipping PDF generation.")
+              exit(0)
+              
+          df = pd.read_csv(csv_file)
 
           pdf = FPDF('P', 'mm', 'A4')
           pdf.set_auto_page_break(False)
           try: 
               pdf.add_font('Arial', '', '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf', uni=True)
               pdf.add_font('Arial', 'B', '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf', uni=True)
-              pdf.set_font("Arial", 'B', size=8)
           except RuntimeError:
-              print("Default font not found, using helvetica.")
-              pdf.set_font("Helvetica", 'B', size=8)
-
+              print("Arial font not found, using helvetica.")
 
           card_w, card_h = 63, 88
-          margin_x, margin_y = 10, 10
-          gap_x, gap_y = 5, 15
+          margin_x = 10
+          margin_y = 30
+          gap_x, gap_y = 5, 20
 
           card_data = []
           for index, row in df.iterrows():
@@ -207,11 +308,24 @@ jobs:
                   })
 
           for idx, card in enumerate(card_data):
-              if idx % 9 == 0:
+              if idx % 6 == 0:
                   pdf.add_page()
+                  try:
+                      pdf.set_font("Arial", 'B', size=16)
+                  except RuntimeError:
+                      pdf.set_font("Helvetica", 'B', size=16)
+                  pdf.set_xy(0, 10)
+                  pdf.cell(0, 10, pdf_title, align='C')
+
+                  try:
+                      pdf.set_font("Arial", '', size=9)
+                  except RuntimeError:
+                      pdf.set_font("Helvetica", '', size=9)
+                  pdf.set_xy(0, 18)
+                  pdf.cell(0, 10, f"This is the current data as of {timestamp}", align='C')
 
               col = (idx % 3)
-              row = ((idx % 9) // 3)
+              row = ((idx % 6) // 3)
               x = margin_x + col * (card_w + gap_x)
               y = margin_y + row * (card_h + gap_y)
 
@@ -223,13 +337,12 @@ jobs:
                   pdf.set_xy(x, y + card_h / 2)
                   pdf.multi_cell(card_w, 4, "Image Error", align='C')
 
-              
               pdf.set_draw_color(200, 200, 200)
               pdf.rect(x, y, card_w, card_h)
 
               name = card['name']
               price = card['price']
-              price_text = f"${price:.2f}" if isinstance(price, (int, float)) else ""
+              price_text = f"Current Market Price:\n${price:.2f}" if isinstance(price, (int, float)) else "Price not available"
               
               try:
                   pdf.set_font("Arial", 'B', size=8)
@@ -240,20 +353,30 @@ jobs:
               pdf.multi_cell(card_w, 4, f"{name}", align='C')
 
               try:
-                  pdf.set_font("Arial", '', size=7)
+                  pdf.set_font("Arial", 'B', size=8)
               except RuntimeError:
-                  pdf.set_font("Helvetica", '', size=7)
-              pdf.set_xy(x, y + card_h + 7)
+                  pdf.set_font("Helvetica", 'B', size=8)
+              pdf.set_xy(x, y + card_h + 9)
               pdf.multi_cell(card_w, 4, f"{price_text}", align='C')
 
           os.makedirs("printables", exist_ok=True)
-          pdf.output("printables/shrouded_fable_placeholders.pdf")
+          pdf.output(f"printables/{pdf_filename}")
           EOF
 
       - name: Commit results
         run: |
+          set_url_name=$(echo "${{ matrix.set.set_url_name }}")
+          csv_file="${set_url_name}.csv"
+          pdf_file="printables/${set_url_name}_placeholders.pdf"
+
+          if [ ! -f "$csv_file" ]; then
+            echo "No CSV found for ${set_url_name}, skipping commit."
+            exit 0
+          fi
+          
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add shrouded_fable.csv images/ printables/
-          git commit -m "Update GrowliZard CSV, images (with AI), and PDF sheets" || echo "No changes to commit"
+          
+          git add images/ "$csv_file" "$pdf_file"
+          git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit for ${{ matrix.set.set_display_name }}"
           git push
