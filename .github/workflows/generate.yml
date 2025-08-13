@@ -17,17 +17,17 @@ jobs:
           # --- YOUR MASTER SET LIST ---
           # To add a new set, just copy and paste a block and update the three values.
           # Find the 'set_url_name' in the TCGplayer URL for that set.
-          - set_url_name: 'sv09-shrouded-fable'
+          - set_url_name: 'sv-shrouded-fable'
             set_filter_name: 'Shrouded'
             set_display_name: 'SV: Shrouded Fable'
 
-          - set_url_name: 'sv07-twilight-masquerade'
+          - set_url_name: 'sv06-twilight-masquerade'
             set_filter_name: 'Twilight'
-            set_display_name: 'SV07: Twilight Masquerade'
+            set_display_name: 'SV06: Twilight Masquerade'
             
-          - set_url_name: 'sv06-temporal-forces'
+          - set_url_name: 'sv05-temporal-forces'
             set_filter_name: 'Temporal'
-            set_display_name: 'SV06: Temporal Forces'
+            set_display_name: 'SV05: Temporal Forces'
 
           - set_url_name: 'sv-prismatic-evolutions'
             set_filter_name: 'Prismatic'
@@ -40,6 +40,18 @@ jobs:
           - set_url_name: 'sv-white-flare'
             set_filter_name: 'White'
             set_display_name: 'SV: White Flare'
+
+          - set_url_name: 'sv02-paldea-evolved'
+            set_filter_name: 'Paldea'
+            set_display_name: 'SV02: Palled Evolved'
+
+          - set_url_name: 'sv04:-paradox-rift'
+            set_filter_name: 'Paradox'
+            set_display_name: 'SV04: Paradox Rift'
+            
+          - set_url_name: 'sv03-obsidian-flames'
+            set_filter_name: 'Obsidian'
+            set_display_name: 'SV03: Obsidian Flames'
 
     steps:
       - name: Checkout repo
