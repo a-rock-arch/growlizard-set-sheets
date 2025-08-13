@@ -331,7 +331,15 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
+          # This is the correct and robust sequence for committing from parallel jobs.
+          # 1. Pull the latest changes from the remote branch FIRST.
           git pull --rebase
+          
+          # 2. Now, add the newly generated files for this specific job.
           git add images/ "$csv_file" "$pdf_file"
+          
+          # 3. Commit the new files.
           git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit"
+          
+          # 4. Push the final result.
           git push
