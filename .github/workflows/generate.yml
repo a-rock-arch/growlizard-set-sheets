@@ -331,6 +331,9 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
+          # Pull the latest changes to resolve conflicts before pushing
+          git pull --rebase
+
           # Add all generated files and images for this run
           git add "$csv_file" images/ "$pdf_file"
           git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit"
