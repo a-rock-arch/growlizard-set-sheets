@@ -38,24 +38,33 @@ jobs:
               with sync_playwright() as p:
                   browser = p.chromium.launch(headless=True)
                   page = browser.new_page()
-                  # This waits for the page to finish all network requests, which is more robust
-                  # than waiting for a specific HTML element that might change.
                   page.goto(URL, wait_until="networkidle", timeout=60000)
                   html_content = page.content()
                   browser.close()
           except Exception as e:
-              print(f"!!! FAILED during Playwright operation: {e}")
+              print(f"!!! FAILED to discover sets: {e}")
               exit(1)
 
           soup = BeautifulSoup(html_content, "html.parser")
           set_list = []
           
-          print("Attempting to find set filter dropdown...")
-          # Try multiple selectors to be more resilient to changes
-          set_filter = soup.find("select", {"name": "setName"})
-          if not set_filter:
-              print("Selector 'name=setName' failed. Trying 'data-testid=product-filter__set'...")
-              set_filter = soup.find("select", {"data-testid": "product-filter__set"})
+          # --- NEW, MORE RESILIENT SELECTOR LOGIC ---
+          print("Attempting to find set filter dropdown by its label...")
+          set_filter = None
+          # Find the label that says "Set"
+          set_label = soup.find("label", string=lambda t: t and "Set" in t.strip())
+          
+          if set_label and set_label.get('for'):
+              target_id = set_label.get('for')
+              print(f"Found label targeting ID: {target_id}. Finding select tag with this ID...")
+              # Find the select tag that the label is for
+              set_filter = soup.find("select", {"id": target_id})
+          else:
+              # Fallback to previous methods if the label method fails
+              print("Label method failed. Trying fallback selectors...")
+              set_filter = soup.find("select", {"name": "setName"})
+              if not set_filter:
+                  set_filter = soup.find("select", {"data-testid": "product-filter__set"})
 
           if not set_filter:
               print("!!! All attempts to find the set filter dropdown failed. TCGplayer has likely changed their HTML again.")
