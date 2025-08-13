@@ -5,7 +5,7 @@ Brave Bangle,1.28,https://tcgplayer-cdn.tcgplayer.com/product/642197_in_200x200.
 Ignition Energy,0.55,https://tcgplayer-cdn.tcgplayer.com/product/642201_in_200x200.jpg
 Frillish,0.33,https://tcgplayer-cdn.tcgplayer.com/product/642156_in_200x200.jpg
 Tool Scrapper,0.34,https://tcgplayer-cdn.tcgplayer.com/product/642195_in_200x200.jpg
-Jellicent ex,1.46,https://tcgplayer-cdn.tcgplayer.com/product/642157_in_200x200.jpg
+Jellicent ex,1.44,https://tcgplayer-cdn.tcgplayer.com/product/642157_in_200x200.jpg
 Hydreigon ex,0.38,https://tcgplayer-cdn.tcgplayer.com/product/642177_in_200x200.jpg
 Reshiram ex,0.48,https://tcgplayer-cdn.tcgplayer.com/product/642132_in_200x200.jpg
 Bouffalant ex,0.37,https://tcgplayer-cdn.tcgplayer.com/product/642190_in_200x200.jpg
@@ -29,7 +29,7 @@ Purrloin,0.09,https://tcgplayer-cdn.tcgplayer.com/product/642167_in_200x200.jpg
 Archen,0.09,https://tcgplayer-cdn.tcgplayer.com/product/642162_in_200x200.jpg
 Cofagrigus,0.14,https://tcgplayer-cdn.tcgplayer.com/product/642152_in_200x200.jpg
 Zweilous,0.09,https://tcgplayer-cdn.tcgplayer.com/product/642176_in_200x200.jpg
-Vullaby,0.06,https://tcgplayer-cdn.tcgplayer.com/product/642512_in_200x200.jpg
+Trubbish,0.08,https://tcgplayer-cdn.tcgplayer.com/product/642171_in_200x200.jpg
 Galvantula,0.06,https://tcgplayer-cdn.tcgplayer.com/product/642146_in_200x200.jpg
 Mandibuzz,0.07,https://tcgplayer-cdn.tcgplayer.com/product/642513_in_200x200.jpg
 Lillipup,0.06,https://tcgplayer-cdn.tcgplayer.com/product/642187_in_200x200.jpg
@@ -58,7 +58,7 @@ Basculin,0.05,https://tcgplayer-cdn.tcgplayer.com/product/642136_in_200x200.jpg
 Lampent,0.12,https://tcgplayer-cdn.tcgplayer.com/product/642465_in_200x200.jpg
 Vanillish,0.06,https://tcgplayer-cdn.tcgplayer.com/product/642140_in_200x200.jpg
 Stunfisk,0.05,https://tcgplayer-cdn.tcgplayer.com/product/642147_in_200x200.jpg
-Swoobat,0.07,https://tcgplayer-cdn.tcgplayer.com/product/642149_in_200x200.jpg
+Scraggy,0.06,https://tcgplayer-cdn.tcgplayer.com/product/642169_in_200x200.jpg
 Lampent - 102/086,11.5,https://tcgplayer-cdn.tcgplayer.com/product/642550_in_200x200.jpg
 Pansear,0.06,https://tcgplayer-cdn.tcgplayer.com/product/642129_in_200x200.jpg
 Simisear,0.07,https://tcgplayer-cdn.tcgplayer.com/product/642130_in_200x200.jpg
@@ -104,8 +104,8 @@ Trubbish (Poke Ball Pattern),0.44,https://tcgplayer-cdn.tcgplayer.com/product/im
 Purrloin (Poke Ball Pattern),0.29,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Jellicent ex - 168/086,51.88,https://tcgplayer-cdn.tcgplayer.com/product/642285_in_200x200.jpg
 Blitzle (Poke Ball Pattern),0.31,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
-Tool Scrapper (Poke Ball Pattern),2.43,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Sewaddle (Poke Ball Pattern),0.18,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
+Tool Scrapper (Poke Ball Pattern),2.43,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Lillipup (Poke Ball Pattern),0.28,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Hydreigon ex - 169/086,83.93,https://tcgplayer-cdn.tcgplayer.com/product/642286_in_200x200.jpg
 Shelmet (Poke Ball Pattern),0.26,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
@@ -132,8 +132,8 @@ Swadloon (Poke Ball Pattern),0.39,https://tcgplayer-cdn.tcgplayer.com/product/im
 Zweilous (Poke Ball Pattern),0.71,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Terrakion - 135/086,16.54,https://tcgplayer-cdn.tcgplayer.com/product/642248_in_200x200.jpg
 Tepig (Poke Ball Pattern),0.61,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
-Energy Retrieval (Poke Ball Pattern),3.01,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Keldeo ex - 167/086,62.21,https://tcgplayer-cdn.tcgplayer.com/product/642284_in_200x200.jpg
+Energy Retrieval (Poke Ball Pattern),3.01,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Scrafty - 139/086,12.17,https://tcgplayer-cdn.tcgplayer.com/product/642252_in_200x200.jpg
 Druddigon (Poke Ball Pattern),0.6,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Accelgor (Poke Ball Pattern),0.55,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
@@ -149,8 +149,8 @@ Leavanny - 089/086,17.05,https://tcgplayer-cdn.tcgplayer.com/product/642204_in_2
 Antique Plume Fossil (Poke Ball Pattern),0.65,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Patrat (Poke Ball Pattern),0.6,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Reshiram ex - 173/086,445.2,https://tcgplayer-cdn.tcgplayer.com/product/642289_in_200x200.jpg
-Oshawott (Poke Ball Pattern),1.33,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Frillish (Master Ball Pattern),5.52,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
+Oshawott (Poke Ball Pattern),1.33,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Deino (Master Ball Pattern),1.49,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Stunfisk (Poke Ball Pattern),0.82,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Liepard (Poke Ball Pattern),1.43,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
@@ -180,8 +180,8 @@ Ferroseed (Master Ball Pattern),4.1,https://tcgplayer-cdn.tcgplayer.com/product/
 Boldore (Master Ball Pattern),4.1,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Yamask (Master Ball Pattern),4.34,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Basculin (Master Ball Pattern),3.68,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
-Tornadus (Master Ball Pattern),3.42,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Swadloon (Master Ball Pattern),7.07,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
+Tornadus (Master Ball Pattern),3.42,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Virizion (Master Ball Pattern),8.55,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Vanilluxe (Master Ball Pattern),6.38,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
 Roggenrola (Master Ball Pattern),5.36,https://tcgplayer-cdn.tcgplayer.com/product/image-missing.svg
