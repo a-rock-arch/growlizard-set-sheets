@@ -38,26 +38,20 @@ jobs:
               with sync_playwright() as p:
                   browser = p.chromium.launch(headless=True)
                   page = browser.new_page()
-                  page.goto(URL, wait_until="domcontentloaded", timeout=60000)
-                  
-                  # NEW: Explicitly wait for the filter container to be visible
-                  print("Waiting for search filter UI to render...")
-                  page.wait_for_selector("div.search-filters", timeout=30000)
-                  
-                  print("Waiting for network to be idle...")
-                  page.wait_for_load_state('networkidle', timeout=60000)
-                  
+                  # This waits for the page to finish all network requests, which is more robust
+                  # than waiting for a specific HTML element that might change.
+                  page.goto(URL, wait_until="networkidle", timeout=60000)
                   html_content = page.content()
                   browser.close()
           except Exception as e:
-              print(f"!!! FAILED to discover sets during Playwright operation: {e}")
+              print(f"!!! FAILED during Playwright operation: {e}")
               exit(1)
 
           soup = BeautifulSoup(html_content, "html.parser")
           set_list = []
           
-          # NEW: Try multiple common selectors to find the dropdown
           print("Attempting to find set filter dropdown...")
+          # Try multiple selectors to be more resilient to changes
           set_filter = soup.find("select", {"name": "setName"})
           if not set_filter:
               print("Selector 'name=setName' failed. Trying 'data-testid=product-filter__set'...")
