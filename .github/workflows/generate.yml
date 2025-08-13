@@ -331,6 +331,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
+          git pull --rebase
           git add images/ "$csv_file" "$pdf_file"
           git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit"
           git push
