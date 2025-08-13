@@ -353,5 +353,20 @@ jobs:
           
           git add images/ "$csv_file" "$pdf_file"
           git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit"
-          git pull --rebase
-          git push
+          
+          # This retry loop handles the final race condition for pushing
+          for i in {1..5}; do
+            echo "Attempting to sync and push, trial #$i..."
+            # First, sync with remote changes, then push. If successful, exit the loop.
+            if git pull --rebase && git push; then
+              echo "Push successful!"
+              exit 0 # Success, exit the script cleanly
+            fi
+            # If it failed, wait for a random time before the next trial
+            echo "Push failed, waiting for a random delay..."
+            sleep $((RANDOM % 5 + 2))
+          done
+          
+          # If the loop finishes, all 5 attempts failed
+          echo "::error::Could not push to remote repository after 5 attempts."
+          exit 1
