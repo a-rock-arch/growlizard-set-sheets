@@ -1,4 +1,4 @@
-name: Generate Pokémon Set Sheets from List
+name: Generate All Pokémon Set Sheets
 
 on:
   schedule:
@@ -203,7 +203,7 @@ jobs:
 
           for _, row in df.iterrows():
               card_name = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
-              # FIXED: Create a unique filename using the set name to prevent conflicts
+              # Create a unique filename using the set name to prevent conflicts
               img_path = f"images/{set_url_name}-{card_name}.jpg"
               image_url = row.get("imageUrl")
 
@@ -274,7 +274,7 @@ jobs:
           card_data = []
           for index, row in df.iterrows():
               card_name_safe = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
-              # FIXED: Point to the unique filename for the image
+              # Point to the unique filename for the image
               img_path = f"images/{set_url_name}-{card_name_safe}.jpg"
               if os.path.exists(img_path):
                   card_data.append({
@@ -353,7 +353,12 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          git pull --rebase
+          # This is the correct and robust sequence for committing from parallel jobs.
+          # 1. Add new files to the staging area
           git add images/ "$csv_file" "$pdf_file"
+          # 2. Commit the new files locally
           git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit"
+          # 3. Pull remote changes, rebasing your local commit on top
+          git pull --rebase
+          # 4. Push the final, combined history
           git push
