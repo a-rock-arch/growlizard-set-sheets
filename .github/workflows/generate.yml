@@ -45,7 +45,7 @@ jobs:
             set_filter_name: 'Paldea'
             set_display_name: 'SV02: Palled Evolved'
 
-          - set_url_name: 'sv04:-paradox-rift'
+          - set_url_name: 'sv04-paradox-rift'
             set_filter_name: 'Paradox'
             set_display_name: 'SV04: Paradox Rift'
             
