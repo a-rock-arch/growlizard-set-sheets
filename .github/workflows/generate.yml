@@ -1,4 +1,4 @@
-name: Generate All Pokémon Set Sheets
+name: Generate Pokémon Set Sheets from List
 
 on:
   schedule:
@@ -6,101 +6,40 @@ on:
   workflow_dispatch:
 
 jobs:
-  discover-sets:
-    runs-on: ubuntu-latest
-    outputs:
-      sets: ${{ steps.get_sets.outputs.matrix }}
-    steps:
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-      - name: Install Dependencies and Browsers
-        run: |
-          python -m pip install --upgrade pip
-          pip install beautifulsoup4 playwright
-          python -m playwright install --with-deps
-      - name: Discover All Sets from TCGplayer
-        id: get_sets
-        run: |
-          python << 'EOF'
-          from bs4 import BeautifulSoup
-          from playwright.sync_api import sync_playwright
-          import json
-          import os
-
-          URL = "https://www.tcgplayer.com/search/pokemon/product?productLineName=pokemon&productTypeName=Cards&view=grid"
-          
-          print(f"Discovering sets from: {URL}")
-
-          html_content = ""
-          try:
-              with sync_playwright() as p:
-                  browser = p.chromium.launch(headless=True)
-                  page = browser.new_page()
-                  page.goto(URL, wait_until="networkidle", timeout=60000)
-                  html_content = page.content()
-                  browser.close()
-          except Exception as e:
-              print(f"!!! FAILED to discover sets: {e}")
-              exit(1)
-
-          soup = BeautifulSoup(html_content, "html.parser")
-          set_list = []
-          
-          # --- NEW, MORE RESILIENT SELECTOR LOGIC ---
-          print("Attempting to find set filter dropdown by its label...")
-          set_filter = None
-          # Find the label that says "Set"
-          set_label = soup.find("label", string=lambda t: t and "Set" in t.strip())
-          
-          if set_label and set_label.get('for'):
-              target_id = set_label.get('for')
-              print(f"Found label targeting ID: {target_id}. Finding select tag with this ID...")
-              # Find the select tag that the label is for
-              set_filter = soup.find("select", {"id": target_id})
-          else:
-              # Fallback to previous methods if the label method fails
-              print("Label method failed. Trying fallback selectors...")
-              set_filter = soup.find("select", {"name": "setName"})
-              if not set_filter:
-                  set_filter = soup.find("select", {"data-testid": "product-filter__set"})
-
-          if not set_filter:
-              print("!!! All attempts to find the set filter dropdown failed. TCGplayer has likely changed their HTML again.")
-              exit(1)
-          
-          print("Successfully found set filter dropdown.")
-
-          for option in set_filter.find_all("option"):
-              set_url_name = option.get("value")
-              set_display_name = option.text.strip()
-              
-              if set_url_name and set_display_name:
-                  filter_name = set_display_name.split(': ')[-1].split(' ')[0]
-                  
-                  set_list.append({
-                      "set_url_name": set_url_name,
-                      "set_filter_name": filter_name,
-                      "set_display_name": set_display_name
-                  })
-
-          json_output = json.dumps(set_list)
-          print(f"Discovered {len(set_list)} sets.")
-          
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as hf:
-              print(f'matrix={json_output}', file=hf)
-          EOF
-
   generate-sheets:
-    needs: discover-sets
     permissions:
       contents: write
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        set: ${{ fromJson(needs.discover-sets.outputs.sets) }}
       fail-fast: false
+      matrix:
+        set:
+          # --- YOUR MASTER SET LIST ---
+          # To add a new set, just copy and paste a block and update the three values.
+          # Find the 'set_url_name' in the TCGplayer URL for that set.
+          - set_url_name: 'sv09-shrouded-fable'
+            set_filter_name: 'Shrouded'
+            set_display_name: 'SV: Shrouded Fable'
+
+          - set_url_name: 'sv07-twilight-masquerade'
+            set_filter_name: 'Twilight'
+            set_display_name: 'SV07: Twilight Masquerade'
+            
+          - set_url_name: 'sv06-temporal-forces'
+            set_filter_name: 'Temporal'
+            set_display_name: 'SV06: Temporal Forces'
+
+          - set_url_name: 'sv-prismatic-evolutions'
+            set_filter_name: 'Prismatic'
+            set_display_name: 'SV: Prismatic Evolutions'
+
+          - set_url_name: 'sv-black-bolt'
+            set_filter_name: 'Black'
+            set_display_name: 'SV: Black Bolt'
+            
+          - set_url_name: 'sv-white-flare'
+            set_filter_name: 'White'
+            set_display_name: 'SV: White Flare'
 
     steps:
       - name: Checkout repo
@@ -380,6 +319,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          git add images/ "$csv_file" "$pdf_file"
-          git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit for ${{ matrix.set.set_display_name }}"
+          # Add all generated files and images for this run
+          git add "$csv_file" images/ "$pdf_file"
+          git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit"
           git push
