@@ -43,7 +43,7 @@ jobs:
 
           - set_url_name: 'sv02-paldea-evolved'
             set_filter_name: 'Paldea'
-            set_display_name: 'SV02: Palled Evolved'
+            set_display_name: 'SV02: Paldea Evolved'
 
           - set_url_name: 'sv04-paradox-rift'
             set_filter_name: 'Paradox'
@@ -52,6 +52,26 @@ jobs:
           - set_url_name: 'sv03-obsidian-flames'
             set_filter_name: 'Obsidian'
             set_display_name: 'SV03: Obsidian Flames'
+
+          - set_url_name: 'sv08-surging-sparks'
+            set_filter_name: 'Surging'
+            set_display_name: 'SV08: Surging Sparks'
+
+          - set_url_name: 'sv10-destined-rivals'
+            set_filter_name: 'Destined'
+            set_display_name: 'SV10: Destined Rivals'
+
+          - set_url_name: 'sv09-journey-together'
+            set_filter_name: 'Journey'
+            set_display_name: 'SV09: Journey Together'
+            
+          - set_url_name: 'sv07-stellar-crown'
+            set_filter_name: 'Stellar'
+            set_display_name: 'SV07: Stellar Crown'
+
+          - set_url_name: 'sv01-scarlet-and-violet-base-set'
+            set_filter_name: 'Scarlet'
+            set_display_name: 'SV01: Scarlet & Violet Base Set'
 
     steps:
       - name: Checkout repo
