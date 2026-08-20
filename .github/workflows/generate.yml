@@ -14,22 +14,70 @@ jobs:
       fail-fast: false
       matrix:
         set:
-          # --- YOUR MASTER SET LIST ---
-          - set_url_name: 'sv09-shrouded-fable'
-            set_filter_name: 'Shrouded'
-            set_display_name: 'SV: Shrouded Fable'
+          # --- MASTER SET LIST (Scarlet & Violet Era Onward) ---
+          - set_url_name: 'sv01-scarlet-and-violet-base-set'
+            set_filter_name: 'Scarlet'
+            set_display_name: 'SV01: Scarlet & Violet Base Set'
 
-          - set_url_name: 'sv07-twilight-masquerade'
-            set_filter_name: 'Twilight'
-            set_display_name: 'SV07: Twilight Masquerade'
+          - set_url_name: 'sv02-paldea-evolved'
+            set_filter_name: 'Paldea'
+            set_display_name: 'SV02: Paldea Evolved'
 
-          - set_url_name: 'sv06-temporal-forces'
-            set_filter_name: 'Temporal'
-            set_display_name: 'SV06: Temporal Forces'
+          - set_url_name: 'sv03-obsidian-flames'
+            set_filter_name: 'Obsidian'
+            set_display_name: 'SV03: Obsidian Flames'
+
+          - set_url_name: 'sv-scarlet-and-violet-151'
+            set_filter_name: '151'
+            set_display_name: 'SV: Scarlet & Violet 151'
+
+          - set_url_name: 'sv04-paradox-rift'
+            set_filter_name: 'Paradox'
+            set_display_name: 'SV04: Paradox Rift'
 
           - set_url_name: 'sv-paldean-fates'
             set_filter_name: 'Paldean'
             set_display_name: 'SV: Paldean Fates'
+
+          - set_url_name: 'sv05-temporal-forces'
+            set_filter_name: 'Temporal'
+            set_display_name: 'SV05: Temporal Forces'
+
+          - set_url_name: 'sv06-twilight-masquerade'
+            set_filter_name: 'Twilight'
+            set_display_name: 'SV06: Twilight Masquerade'
+
+          - set_url_name: 'sv09-shrouded-fable'
+            set_filter_name: 'Shrouded'
+            set_display_name: 'SV: Shrouded Fable'
+
+          - set_url_name: 'sv07-stellar-crown'
+            set_filter_name: 'Stellar'
+            set_display_name: 'SV07: Stellar Crown'
+
+          - set_url_name: 'sv08-surging-sparks'
+            set_filter_name: 'Surging'
+            set_display_name: 'SV08: Surging Sparks'
+
+          - set_url_name: 'sv-prismatic-evolutions'
+            set_filter_name: 'Prismatic'
+            set_display_name: 'SV: Prismatic Evolutions'
+
+          - set_url_name: 'sv09-journey-together'
+            set_filter_name: 'Journey'
+            set_display_name: 'SV09: Journey Together'
+
+          - set_url_name: 'sv10-destined-rivals'
+            set_filter_name: 'Destined'
+            set_display_name: 'SV10: Destined Rivals'
+
+          - set_url_name: 'sv-black-bolt'
+            set_filter_name: 'Black'
+            set_display_name: 'SV: Black Bolt'
+
+          - set_url_name: 'sv-white-flare'
+            set_filter_name: 'White'
+            set_display_name: 'SV: White Flare'
 
     steps:
       - name: Checkout repo
@@ -75,7 +123,6 @@ jobs:
               page = browser.new_page(viewport={"width": 1920, "height": 1080})
 
               while True:
-                  # Safety Cap: Stop runaway pagination
                   if page_number > 25:
                       print(f"Reached safety limit of 25 pages for {set_url_name}. Ending scrape.")
                       break
@@ -122,7 +169,6 @@ jobs:
                           })
                           matched_in_page += 1
 
-                  # Auto-stop if TCGplayer falls back to unrelated sets
                   if matched_in_page == 0 and page_number > 1:
                       print(f"No cards matched set '{TARGET_SET_NAME}' on page {page_number}. Stopping scraper.")
                       break
