@@ -15,64 +15,18 @@ jobs:
       matrix:
         set:
           # --- YOUR MASTER SET LIST ---
-          # To add a new set, just copy and paste a block and update the three values.
-          # Find the 'set_url_name' in the TCGplayer URL for that set.
-          - set_url_name: 'sv-shrouded-fable'
+          - set_url_name: 'sv09-shrouded-fable'
             set_filter_name: 'Shrouded'
             set_display_name: 'SV: Shrouded Fable'
 
-          - set_url_name: 'sv06-twilight-masquerade'
+          - set_url_name: 'sv07-twilight-masquerade'
             set_filter_name: 'Twilight'
-            set_display_name: 'SV06: Twilight Masquerade'
-            
-          - set_url_name: 'sv05-temporal-forces'
+            set_display_name: 'SV07: Twilight Masquerade'
+
+          - set_url_name: 'sv06-temporal-forces'
             set_filter_name: 'Temporal'
-            set_display_name: 'SV05: Temporal Forces'
+            set_display_name: 'SV06: Temporal Forces'
 
-          - set_url_name: 'sv-prismatic-evolutions'
-            set_filter_name: 'Prismatic'
-            set_display_name: 'SV: Prismatic Evolutions'
-
-          - set_url_name: 'sv-black-bolt'
-            set_filter_name: 'Black'
-            set_display_name: 'SV: Black Bolt'
-            
-          - set_url_name: 'sv-white-flare'
-            set_filter_name: 'White'
-            set_display_name: 'SV: White Flare'
-
-          - set_url_name: 'sv02-paldea-evolved'
-            set_filter_name: 'Paldea'
-            set_display_name: 'SV02: Paldea Evolved'
-
-          - set_url_name: 'sv04-paradox-rift'
-            set_filter_name: 'Paradox'
-            set_display_name: 'SV04: Paradox Rift'
-            
-          - set_url_name: 'sv03-obsidian-flames'
-            set_filter_name: 'Obsidian'
-            set_display_name: 'SV03: Obsidian Flames'
-
-          - set_url_name: 'sv08-surging-sparks'
-            set_filter_name: 'Surging'
-            set_display_name: 'SV08: Surging Sparks'
-
-          - set_url_name: 'sv10-destined-rivals'
-            set_filter_name: 'Destined'
-            set_display_name: 'SV10: Destined Rivals'
-
-          - set_url_name: 'sv09-journey-together'
-            set_filter_name: 'Journey'
-            set_display_name: 'SV09: Journey Together'
-            
-          - set_url_name: 'sv07-stellar-crown'
-            set_filter_name: 'Stellar'
-            set_display_name: 'SV07: Stellar Crown'
-
-          - set_url_name: 'sv01-scarlet-and-violet-base-set'
-            set_filter_name: 'Scarlet'
-            set_display_name: 'SV01: Scarlet & Violet Base Set'
-            
           - set_url_name: 'sv-paldean-fates'
             set_filter_name: 'Paldean'
             set_display_name: 'SV: Paldean Fates'
@@ -91,7 +45,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pandas requests beautifulsoup4 Pillow fpdf2 replicate playwright
           python -m playwright install --with-deps
-          
+
       - name: Scrape TCGplayer Data for ${{ matrix.set.set_display_name }}
         env:
           SET_URL_NAME: ${{ matrix.set.set_url_name }}
@@ -107,10 +61,10 @@ jobs:
 
           set_url_name = os.environ.get('SET_URL_NAME')
           TARGET_SET_NAME = os.environ.get('SET_FILTER_NAME')
-          
-          BASE_URL = f"https://www.tcgplayer.com/search/pokemon/{set_url_name}?productLineName=pokemon&setName={set_url_name}&productTypeName=Cards&view=grid"
+
+          BASE_URL = f"https://www.tcgplayer.com/search/pokemon/{set_url_name}?productLineName=pokemon&productTypeName=Cards&view=grid"
           CSV_FILENAME = f"{set_url_name}.csv"
-          
+
           all_cards_list = []
           page_number = 1
 
@@ -121,9 +75,14 @@ jobs:
               page = browser.new_page(viewport={"width": 1920, "height": 1080})
 
               while True:
+                  # Safety Cap: Stop runaway pagination
+                  if page_number > 25:
+                      print(f"Reached safety limit of 25 pages for {set_url_name}. Ending scrape.")
+                      break
+
                   paginated_url = f"{BASE_URL}&page={page_number}"
                   print(f"Scraping URL: {paginated_url}")
-                  
+
                   html_content = ""
                   try:
                       page.goto(paginated_url, wait_until="networkidle", timeout=60000)
@@ -137,11 +96,10 @@ jobs:
                   search_results = soup.find_all("div", class_="search-result")
 
                   if not search_results:
-                    print(f"No more search results found on page {page_number}. Ending scrape.")
-                    break
-                  
-                  print(f"Found {len(search_results)} card results on page {page_number}. Now parsing and filtering...")
+                      print(f"No search results found on page {page_number}. Ending scrape.")
+                      break
 
+                  matched_in_page = 0
                   for card in search_results:
                       name_tag = card.find("span", class_="product-card__title")
                       price_tag = card.find("span", class_="product-card__market-price--value")
@@ -151,33 +109,36 @@ jobs:
                       name = name_tag.text.strip() if name_tag else None
                       price_text = price_tag.text.strip() if price_tag else "$0.00"
                       image_url = image_tag.get("src") if image_tag else None
-                      set_name = set_name_tag.text.strip() if set_name_tag else "" 
-                      
+                      set_name = set_name_tag.text.strip() if set_name_tag else ""
+
                       price_match = re.search(r'\$([\d,]+\.\d{2})', price_text)
                       price = float(price_match.group(1).replace(",", "")) if price_match else 0.0
 
-                      if name and image_url and "data:image/gif" not in image_url and TARGET_SET_NAME in set_name:
+                      if name and image_url and "data:image/gif" not in image_url and TARGET_SET_NAME.lower() in set_name.lower():
                           all_cards_list.append({
                               "name": name,
                               "marketPrice": price,
                               "imageUrl": image_url
                           })
-                      else:
-                          if name:
-                              print(f"  -> Skipping card '{name}' because it's from set '{set_name}' or has a placeholder image.")
-                          
+                          matched_in_page += 1
+
+                  # Auto-stop if TCGplayer falls back to unrelated sets
+                  if matched_in_page == 0 and page_number > 1:
+                      print(f"No cards matched set '{TARGET_SET_NAME}' on page {page_number}. Stopping scraper.")
+                      break
+
                   page_number += 1
-                  time.sleep(1) 
+                  time.sleep(1)
 
               browser.close()
 
           if all_cards_list:
-            df = pd.DataFrame(all_cards_list)
-            df.to_csv(CSV_FILENAME, index=False)
-            print(f"✅ Successfully parsed and saved a total of {len(df)} cards to {CSV_FILENAME}")
+              df = pd.DataFrame(all_cards_list)
+              df.to_csv(CSV_FILENAME, index=False)
+              print(f"✅ Successfully parsed and saved {len(df)} cards to {CSV_FILENAME}")
           else:
-            print(f"!!! FAILED to parse any card data for this set.")
-            exit(0)
+              print(f"!!! FAILED to parse any card data for this set.")
+              exit(0)
           EOF
 
       - name: Download or generate card images
@@ -191,18 +152,15 @@ jobs:
           import requests
           import os
           import replicate
-          from PIL import Image
-          from io import BytesIO
 
           set_url_name = os.environ.get('SET_URL_NAME')
           csv_file = f"{set_url_name}.csv"
-          
+
           if not os.path.exists(csv_file):
               print(f"CSV file not found for {set_url_name}. Skipping image downloads.")
               exit(0)
-              
-          df = pd.read_csv(csv_file)
 
+          df = pd.read_csv(csv_file)
           client = replicate.Client(api_token=os.environ["REPLICATE_API_TOKEN"])
 
           for _, row in df.iterrows():
@@ -220,7 +178,6 @@ jobs:
                           f.write(img_data)
                   except Exception as e:
                       print(f"Failed official image for {card_name}: {e}")
-
               else: 
                   print(f"Generating AI art for: {card_name}")
                   prompt = f"High quality digital painting of a Pokémon-style trading card featuring {row.get('name', 'a creature')}, full art, vibrant colors, no text, fantasy background, trading card art style"
@@ -249,16 +206,16 @@ jobs:
 
           set_url_name = os.environ.get('SET_URL_NAME')
           set_display_name = os.environ.get('SET_DISPLAY_NAME')
-          
+
           timestamp = datetime.now().strftime("%B %d, %Y at %I:%M %p EDT")
           csv_file = f"{set_url_name}.csv"
           pdf_filename = f"{set_url_name}_placeholders.pdf"
           pdf_title = f"Growlizard's {set_display_name} Print List"
-          
+
           if not os.path.exists(csv_file):
               print(f"CSV file not found for {set_url_name}. Skipping PDF generation.")
               exit(0)
-              
+
           df = pd.read_csv(csv_file)
 
           pdf = FPDF('P', 'mm', 'A4')
@@ -321,7 +278,7 @@ jobs:
               name = card['name']
               price = card['price']
               price_text = f"Current Market Price:\n${price:.2f}" if isinstance(price, (int, float)) else "Price not available"
-              
+
               try:
                   pdf.set_font("Arial", 'B', size=8)
               except RuntimeError:
@@ -351,26 +308,22 @@ jobs:
             echo "No CSV found for ${set_url_name}, skipping commit."
             exit 0
           fi
-          
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           git add images/ "$csv_file" "$pdf_file"
           git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit"
-          
-          # This retry loop handles the final race condition for pushing
+
           for i in {1..5}; do
             echo "Attempting to sync and push, trial #$i..."
-            # First, sync with remote changes, then push. If successful, exit the loop.
             if git pull --rebase && git push; then
               echo "Push successful!"
-              exit 0 # Success, exit the script cleanly
+              exit 0
             fi
-            # If it failed, wait for a random time before the next trial
             echo "Push failed, waiting for a random delay..."
             sleep $((RANDOM % 5 + 2))
           done
-          
-          # If the loop finishes, all 5 attempts failed
+
           echo "::error::Could not push to remote repository after 5 attempts."
           exit 1
