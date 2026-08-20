@@ -72,6 +72,10 @@ jobs:
           - set_url_name: 'sv01-scarlet-and-violet-base-set'
             set_filter_name: 'Scarlet'
             set_display_name: 'SV01: Scarlet & Violet Base Set'
+            
+          - set_url_name: 'sv-paldean-fates'
+            set_filter_name: 'Paldean'
+            set_display_name: 'SV: Paldean Fates'
 
     steps:
       - name: Checkout repo
