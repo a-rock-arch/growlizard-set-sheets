@@ -108,48 +108,50 @@ jobs:
           set_url_name = os.environ.get('SET_URL_NAME')
           TARGET_SET_NAME = os.environ.get('SET_FILTER_NAME')
 
-          BASE_URL = f"https://www.tcgplayer.com/search/pokemon/{set_url_name}?productLineName=pokemon&productTypeName=Cards&view=grid"
+          # Use pageSize=100 to drastically minimize page transitions and missing cards
+          BASE_URL = f"https://www.tcgplayer.com/search/pokemon/{set_url_name}?productLineName=pokemon&productTypeName=Cards&view=grid&pageSize=100"
           CSV_FILENAME = f"{set_url_name}.csv"
 
           all_cards_list = []
           page_number = 1
 
-          print(f"Starting scraper for set containing '{TARGET_SET_NAME}'...")
+          print(f"Starting scraper for set '{set_url_name}' (Target filter: '{TARGET_SET_NAME}')...")
 
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               page = browser.new_page(viewport={"width": 1920, "height": 1080})
 
               while True:
-                  if page_number > 30:
-                      print(f"Reached safety limit of 30 pages for {set_url_name}. Ending scrape.")
+                  if page_number > 15:
+                      print(f"Reached max page limit (15 pages = 1500 cards) for {set_url_name}. Ending scrape.")
                       break
 
                   paginated_url = f"{BASE_URL}&page={page_number}"
                   print(f"Scraping URL: {paginated_url}")
 
-                  html_content = ""
                   try:
                       page.goto(paginated_url, wait_until="networkidle", timeout=60000)
                       time.sleep(2)
 
-                      # Scroll down iteratively to trigger all lazy-loaded card images
-                      for _ in range(8):
-                          page.mouse.wheel(0, 800)
-                          time.sleep(0.3)
-                      time.sleep(1)
+                      # Smooth scroll down page to trigger image lazy-loading
+                      for scroll_step in range(12):
+                          page.mouse.wheel(0, 600)
+                          time.sleep(0.2)
+                      time.sleep(1.5)
 
                       html_content = page.content()
                   except Exception as e:
-                      print(f"Browser operation finished or failed on page {page_number}: {e}")
+                      print(f"Browser failed on page {page_number}: {e}")
                       break
 
                   soup = BeautifulSoup(html_content, "html.parser")
                   search_results = soup.find_all("div", class_="search-result")
 
                   if not search_results:
-                      print(f"No search results found on page {page_number}. Ending scrape.")
+                      print(f"No more search results on page {page_number}. Ending scrape.")
                       break
+
+                  print(f"Found {len(search_results)} cards on page {page_number}.")
 
                   for card in search_results:
                       name_tag = card.find("span", class_="product-card__title")
@@ -159,17 +161,24 @@ jobs:
 
                       name = name_tag.text.strip() if name_tag else None
                       price_text = price_tag.text.strip() if price_tag else "$0.00"
-                      image_url = image_tag.get("src") if image_tag else None
                       set_name = set_name_tag.text.strip() if set_name_tag else ""
+
+                      # Check multiple image attributes to bypass lazy loading placeholders
+                      image_url = None
+                      if image_tag:
+                          image_url = image_tag.get("src") or image_tag.get("data-src")
+                          if image_url and "data:image/gif" in image_url:
+                              image_url = image_tag.get("data-src") or image_tag.get("srcset")
 
                       price_match = re.search(r'\$([\d,]+\.\d{2})', price_text)
                       price = float(price_match.group(1).replace(",", "")) if price_match else 0.0
 
-                      if name and image_url and "data:image/gif" not in image_url and TARGET_SET_NAME.lower() in set_name.lower():
+                      # Keep card unconditionally if name is present to avoid gaps
+                      if name:
                           all_cards_list.append({
                               "name": name,
                               "marketPrice": price,
-                              "imageUrl": image_url
+                              "imageUrl": image_url if (image_url and "data:image/gif" not in image_url) else None
                           })
 
                   page_number += 1
@@ -179,6 +188,9 @@ jobs:
 
           if all_cards_list:
               df = pd.DataFrame(all_cards_list)
+
+              # Deduplicate cards while retaining order
+              df = df.drop_duplicates(subset=["name"], keep="first")
 
               # Extract card number for numerical sorting
               def get_card_num(card_name):
@@ -196,7 +208,7 @@ jobs:
               df = df.sort_values(by='card_num').drop(columns=['card_num'])
 
               df.to_csv(CSV_FILENAME, index=False)
-              print(f"✅ Successfully parsed, sorted, and saved {len(df)} cards to {CSV_FILENAME}")
+              print(f"✅ Successfully parsed, sorted, and saved {len(df)} total cards to {CSV_FILENAME}")
           else:
               print(f"!!! FAILED to parse any card data for this set.")
               exit(0)
@@ -240,7 +252,7 @@ jobs:
                   except Exception as e:
                       print(f"Failed official image for {card_name}: {e}")
               else: 
-                  print(f"Generating AI art for: {card_name}")
+                  print(f"Generating AI art for missing image: {card_name}")
                   prompt = f"High quality digital painting of a Pokémon-style trading card featuring {row.get('name', 'a creature')}, full art, vibrant colors, no text, fantasy background, trading card art style"
                   try:
                       output = client.run(
@@ -311,12 +323,13 @@ jobs:
           for index, row in df.iterrows():
               card_name_safe = row.get("name", "unknown").replace("/", "_").replace(" ", "_").replace(":", "")
               img_path = f"images/{set_url_name}-{card_name_safe}.jpg"
-              if os.path.exists(img_path):
-                  card_data.append({
-                      "name": row["name"],
-                      "price": row.get("marketPrice"),
-                      "path": img_path
-                  })
+              
+              # Include card in PDF regardless of whether image download succeeded
+              card_data.append({
+                  "name": row["name"],
+                  "price": row.get("marketPrice"),
+                  "path": img_path if os.path.exists(img_path) else None
+              })
 
           for idx, card in enumerate(card_data):
               if idx % 6 == 0:
@@ -340,13 +353,14 @@ jobs:
               x = margin_x + col * (card_w + gap_x)
               y = margin_y + row * (card_h + gap_y)
 
-              try:
-                  pdf.image(card["path"], x, y, card_w, card_h)
-              except Exception as e:
-                  print(f"Could not add image {card['path']} to PDF: {e}")
-                  pdf.rect(x,y, card_w, card_h, 'D')
-                  pdf.set_xy(x, y + card_h / 2)
-                  pdf.multi_cell(card_w, 4, "Image Error", align='C')
+              if card["path"] and os.path.exists(card["path"]):
+                  try:
+                      pdf.image(card["path"], x, y, card_w, card_h)
+                  except Exception as e:
+                      print(f"Could not render image {card['path']}: {e}")
+                      pdf.rect(x, y, card_w, card_h, 'D')
+              else:
+                  pdf.rect(x, y, card_w, card_h, 'D')
 
               pdf.set_draw_color(200, 200, 200)
               pdf.rect(x, y, card_w, card_h)
