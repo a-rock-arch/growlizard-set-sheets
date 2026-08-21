@@ -108,8 +108,8 @@ jobs:
           set_url_name = os.environ.get('SET_URL_NAME')
           TARGET_SET_NAME = os.environ.get('SET_FILTER_NAME')
 
-          # Include setName filter and pageSize=100
-          BASE_URL = f"https://www.tcgplayer.com/search/pokemon/{set_url_name}?productLineName=pokemon&setName={set_url_name}&productTypeName=Cards&view=grid&pageSize=100"
+          # Set pageSize=72 for maximum items per page supported by TCGplayer
+          BASE_URL = f"https://www.tcgplayer.com/search/pokemon/{set_url_name}?productLineName=pokemon&setName={set_url_name}&productTypeName=Cards&view=grid&pageSize=72"
           CSV_FILENAME = f"{set_url_name}.csv"
 
           all_cards_list = []
@@ -122,8 +122,8 @@ jobs:
               page = browser.new_page(viewport={"width": 1920, "height": 1080})
 
               while True:
-                  if page_number > 8:
-                      print(f"Reached safety limit of 8 pages (800 cards) for {set_url_name}. Ending scrape.")
+                  if page_number > 20:
+                      print(f"Reached max safety page limit for {set_url_name}. Ending scrape.")
                       break
 
                   paginated_url = f"{BASE_URL}&page={page_number}"
@@ -133,9 +133,9 @@ jobs:
                       page.goto(paginated_url, wait_until="networkidle", timeout=60000)
                       time.sleep(2)
 
-                      # Scroll down to load images
-                      for _ in range(10):
-                          page.mouse.wheel(0, 700)
+                      # Scroll page to trigger lazy loading of images
+                      for _ in range(8):
+                          page.mouse.wheel(0, 800)
                           time.sleep(0.2)
                       time.sleep(1.5)
 
@@ -155,37 +155,38 @@ jobs:
                   for card in search_results:
                       card_text = card.get_text()
 
-                      # Verify card belongs to target set
                       if TARGET_SET_NAME.lower() not in card_text.lower():
                           continue
 
                       name_tag = card.find("span", class_="product-card__title")
                       price_tag = card.find("span", class_="product-card__market-price--value")
                       image_tag = card.find("img")
+                      link_tag = card.find("a", href=True)
 
                       raw_name = name_tag.text.strip() if name_tag else None
                       if not raw_name:
                           continue
 
+                      product_link = link_tag['href'] if link_tag else f"{raw_name}_{page_number}_{matched_in_page}"
+
                       price_text = price_tag.text.strip() if price_tag else "$0.00"
                       price_match = re.search(r'\$([\d,]+\.\d{2})', price_text)
                       price = float(price_match.group(1).replace(",", "")) if price_match else 0.0
 
-                      # Extract Card Number (e.g., 003/091 or 003) from card container
-                      num_match = re.search(r'(\d{1,4})\s*/\s*\d{1,4}', card_text)
+                      # Extract set number (e.g. 088/091) from card text
+                      card_num = 999999
+                      num_str = None
+
+                      num_match = re.search(r'(\d{1,4})\s*/\s*(\d{1,4})', card_text)
                       if num_match:
                           num_str = num_match.group(0)
                           card_num = int(num_match.group(1))
                       else:
-                          num_match_alt = re.search(r'-\s*(\d{1,4})', raw_name)
-                          if num_match_alt:
-                              card_num = int(num_match_alt.group(1))
+                          title_match = re.search(r'-\s*(\d{1,4})', raw_name)
+                          if title_match:
+                              card_num = int(title_match.group(1))
                               num_str = f"{card_num:03d}"
-                          else:
-                              card_num = 999999
-                              num_str = None
 
-                      # Append number to title if missing
                       if num_str and num_str not in raw_name:
                           full_name = f"{raw_name} - {num_str}"
                       else:
@@ -201,15 +202,12 @@ jobs:
                           "name": full_name,
                           "marketPrice": price,
                           "imageUrl": image_url if (image_url and "data:image/gif" not in image_url) else None,
-                          "card_num": card_num
+                          "card_num": card_num,
+                          "product_link": product_link
                       })
                       matched_in_page += 1
 
                   print(f"Matched {matched_in_page} cards on page {page_number}.")
-
-                  if matched_in_page == 0 and page_number > 1:
-                      print(f"No cards matched set filter on page {page_number}. Stopping scraper.")
-                      break
 
                   page_number += 1
                   time.sleep(1)
@@ -219,11 +217,11 @@ jobs:
           if all_cards_list:
               df = pd.DataFrame(all_cards_list)
 
-              # Deduplicate by name
-              df = df.drop_duplicates(subset=["name"], keep="first")
+              # Deduplicate by unique TCGplayer product link to preserve variants
+              df = df.drop_duplicates(subset=["product_link"], keep="first")
 
               # Sort strictly by card number
-              df = df.sort_values(by="card_num").drop(columns=["card_num"])
+              df = df.sort_values(by="card_num").drop(columns=["card_num", "product_link"])
 
               df.to_csv(CSV_FILENAME, index=False)
               print(f"✅ Successfully parsed, sorted, and saved {len(df)} total cards to {CSV_FILENAME}")
