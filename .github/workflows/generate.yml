@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         set:
-          # --- MASTER SET LIST (Scarlet & Violet Era Onward) ---
+          # --- MASTER SET LIST ---
           - set_url_name: 'sv01-scarlet-and-violet-base-set'
             set_filter_name: 'Scarlet'
             set_display_name: 'SV01: Scarlet & Violet Base Set'
@@ -29,7 +29,7 @@ jobs:
 
           - set_url_name: 'sv-scarlet-and-violet-151'
             set_filter_name: '151'
-            set_display_name: 'SV: Scarlet & Violet 151'
+            set_display_name: 'SV3.5: Scarlet & Violet 151'
 
           - set_url_name: 'sv04-paradox-rift'
             set_filter_name: 'Paradox'
@@ -37,7 +37,7 @@ jobs:
 
           - set_url_name: 'sv-paldean-fates'
             set_filter_name: 'Paldean'
-            set_display_name: 'SV: Paldean Fates'
+            set_display_name: 'SV4.5: Paldean Fates'
 
           - set_url_name: 'sv05-temporal-forces'
             set_filter_name: 'Temporal'
@@ -49,7 +49,7 @@ jobs:
 
           - set_url_name: 'sv09-shrouded-fable'
             set_filter_name: 'Shrouded'
-            set_display_name: 'SV: Shrouded Fable'
+            set_display_name: 'SV6.5: Shrouded Fable'
 
           - set_url_name: 'sv07-stellar-crown'
             set_filter_name: 'Stellar'
@@ -61,7 +61,7 @@ jobs:
 
           - set_url_name: 'sv-prismatic-evolutions'
             set_filter_name: 'Prismatic'
-            set_display_name: 'SV: Prismatic Evolutions'
+            set_display_name: 'SV8.5: Prismatic Evolutions'
 
           - set_url_name: 'sv09-journey-together'
             set_filter_name: 'Journey'
@@ -85,8 +85,6 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v7
-        with:
-          python-version: "3.x"
 
       - name: Install Dependencies and Browsers
         run: |
@@ -180,8 +178,24 @@ jobs:
 
           if all_cards_list:
               df = pd.DataFrame(all_cards_list)
+              
+              # Extract card number for numerical sorting
+              def get_card_num(card_name):
+                  if not isinstance(card_name, str):
+                      return 999999
+                  match = re.search(r'-\s*(\d+)', card_name)
+                  if match:
+                      return int(match.group(1))
+                  match = re.search(r'(\d+)', card_name)
+                  if match:
+                      return int(match.group(1))
+                  return 999999
+
+              df['card_num'] = df['name'].apply(get_card_num)
+              df = df.sort_values(by='card_num').drop(columns=['card_num'])
+
               df.to_csv(CSV_FILENAME, index=False)
-              print(f"✅ Successfully parsed and saved {len(df)} cards to {CSV_FILENAME}")
+              print(f"✅ Successfully parsed, sorted, and saved {len(df)} cards to {CSV_FILENAME}")
           else:
               print(f"!!! FAILED to parse any card data for this set.")
               exit(0)
@@ -247,6 +261,7 @@ jobs:
           python << 'EOF'
           import os
           import pandas as pd
+          import re
           from fpdf import FPDF
           from datetime import datetime
 
@@ -263,6 +278,21 @@ jobs:
               exit(0)
 
           df = pd.read_csv(csv_file)
+
+          # Extract card number to guarantee PDF order matches card numbers
+          def get_card_num(card_name):
+              if not isinstance(card_name, str):
+                  return 999999
+              match = re.search(r'-\s*(\d+)', card_name)
+              if match:
+                  return int(match.group(1))
+              match = re.search(r'(\d+)', card_name)
+              if match:
+                  return int(match.group(1))
+              return 999999
+
+          df['card_num'] = df['name'].apply(get_card_num)
+          df = df.sort_values(by='card_num').reset_index(drop=True)
 
           pdf = FPDF('P', 'mm', 'A4')
           pdf.set_auto_page_break(False)
