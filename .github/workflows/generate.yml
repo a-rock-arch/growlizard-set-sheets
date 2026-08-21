@@ -121,8 +121,8 @@ jobs:
               page = browser.new_page(viewport={"width": 1920, "height": 1080})
 
               while True:
-                  if page_number > 25:
-                      print(f"Reached safety limit of 25 pages for {set_url_name}. Ending scrape.")
+                  if page_number > 30:
+                      print(f"Reached safety limit of 30 pages for {set_url_name}. Ending scrape.")
                       break
 
                   paginated_url = f"{BASE_URL}&page={page_number}"
@@ -131,7 +131,14 @@ jobs:
                   html_content = ""
                   try:
                       page.goto(paginated_url, wait_until="networkidle", timeout=60000)
-                      time.sleep(3)
+                      time.sleep(2)
+
+                      # Scroll down iteratively to trigger all lazy-loaded card images
+                      for _ in range(8):
+                          page.mouse.wheel(0, 800)
+                          time.sleep(0.3)
+                      time.sleep(1)
+
                       html_content = page.content()
                   except Exception as e:
                       print(f"Browser operation finished or failed on page {page_number}: {e}")
@@ -144,7 +151,6 @@ jobs:
                       print(f"No search results found on page {page_number}. Ending scrape.")
                       break
 
-                  matched_in_page = 0
                   for card in search_results:
                       name_tag = card.find("span", class_="product-card__title")
                       price_tag = card.find("span", class_="product-card__market-price--value")
@@ -165,11 +171,6 @@ jobs:
                               "marketPrice": price,
                               "imageUrl": image_url
                           })
-                          matched_in_page += 1
-
-                  if matched_in_page == 0 and page_number > 1:
-                      print(f"No cards matched set '{TARGET_SET_NAME}' on page {page_number}. Stopping scraper.")
-                      break
 
                   page_number += 1
                   time.sleep(1)
@@ -178,7 +179,7 @@ jobs:
 
           if all_cards_list:
               df = pd.DataFrame(all_cards_list)
-              
+
               # Extract card number for numerical sorting
               def get_card_num(card_name):
                   if not isinstance(card_name, str):
@@ -279,7 +280,6 @@ jobs:
 
           df = pd.read_csv(csv_file)
 
-          # Extract card number to guarantee PDF order matches card numbers
           def get_card_num(card_name):
               if not isinstance(card_name, str):
                   return 999999
