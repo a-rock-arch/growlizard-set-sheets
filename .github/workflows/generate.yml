@@ -79,6 +79,31 @@ jobs:
             set_filter_name: 'White'
             set_display_name: 'SV: White Flare'
 
+          # --- MEGA EVOLUTION SERIES ---
+          - set_url_name: 'me01-mega-evolution'
+            set_filter_name: 'Mega'
+            set_display_name: 'ME01: Mega Evolution'
+
+          - set_url_name: 'me02-phantasmal-flames'
+            set_filter_name: 'Phantasmal'
+            set_display_name: 'ME02: Phantasmal Flames'
+
+          - set_url_name: 'me-ascended-heroes'
+            set_filter_name: 'Ascended'
+            set_display_name: 'ME: Ascended Heroes'
+
+          - set_url_name: 'me03-perfect-order'
+            set_filter_name: 'Perfect'
+            set_display_name: 'ME03: Perfect Order'
+
+          - set_url_name: 'me04-chaos-rising'
+            set_filter_name: 'Chaos'
+            set_display_name: 'ME04: Chaos Rising'
+
+          - set_url_name: 'me05-pitch-black'
+            set_filter_name: 'Pitch'
+            set_display_name: 'ME05: Pitch Black'
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v7
