@@ -1,239 +1,193 @@
 name,marketPrice,imageUrl
-Bulbasaur - 001/165,0.23,https://tcgplayer-cdn.tcgplayer.com/product/502552_in_200x200.jpg
-Ivysaur - 002/165,0.25,https://tcgplayer-cdn.tcgplayer.com/product/502553_in_200x200.jpg
-Venusaur ex - 003/165,1.42,https://tcgplayer-cdn.tcgplayer.com/product/502554_in_200x200.jpg
-Charmander - 004/165,0.19,https://tcgplayer-cdn.tcgplayer.com/product/502555_in_200x200.jpg
-Charmeleon - 005/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/502557_in_200x200.jpg
-Charizard ex - 006/165,7.3,https://tcgplayer-cdn.tcgplayer.com/product/502558_in_200x200.jpg
-Squirtle - 007/165,0.28,https://tcgplayer-cdn.tcgplayer.com/product/502548_in_200x200.jpg
-Wartortle - 008/165,0.28,https://tcgplayer-cdn.tcgplayer.com/product/502550_in_200x200.jpg
-Blastoise ex - 009/165,2.61,https://tcgplayer-cdn.tcgplayer.com/product/502551_in_200x200.jpg
+Bulbasaur - 001/165,0.22,https://tcgplayer-cdn.tcgplayer.com/product/502552_in_200x200.jpg
+Ivysaur - 002/165,0.24,https://tcgplayer-cdn.tcgplayer.com/product/502553_in_200x200.jpg
+Venusaur ex - 003/165,1.38,https://tcgplayer-cdn.tcgplayer.com/product/502554_in_200x200.jpg
+Charmander - 004/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/502555_in_200x200.jpg
+Charmeleon - 005/165,0.21,https://tcgplayer-cdn.tcgplayer.com/product/502557_in_200x200.jpg
+Charizard ex - 006/165,7.25,https://tcgplayer-cdn.tcgplayer.com/product/502558_in_200x200.jpg
+Squirtle - 007/165,0.29,https://tcgplayer-cdn.tcgplayer.com/product/502548_in_200x200.jpg
+Wartortle - 008/165,0.27,https://tcgplayer-cdn.tcgplayer.com/product/502550_in_200x200.jpg
+Blastoise ex - 009/165,2.54,https://tcgplayer-cdn.tcgplayer.com/product/502551_in_200x200.jpg
 Caterpie - 010/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/502559_in_200x200.jpg
-Arbok ex - 024/165,1.6,https://tcgplayer-cdn.tcgplayer.com/product/515956_in_200x200.jpg
-Pikachu - 025/165,0.27,https://tcgplayer-cdn.tcgplayer.com/product/517033_in_200x200.jpg
+Metapod - 011/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/502560_in_200x200.jpg
+Butterfree - 012/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/502561_in_200x200.jpg
+Weedle - 013/165,0.16,https://tcgplayer-cdn.tcgplayer.com/product/502562_in_200x200.jpg
+Kakuna - 014/165,0.21,https://tcgplayer-cdn.tcgplayer.com/product/502563_in_200x200.jpg
+Beedrill - 015/165,0.25,https://tcgplayer-cdn.tcgplayer.com/product/502564_in_200x200.jpg
+Pidgey - 016/165,0.23,https://tcgplayer-cdn.tcgplayer.com/product/502565_in_200x200.jpg
+Pidgeotto - 017/165,0.27,https://tcgplayer-cdn.tcgplayer.com/product/502566_in_200x200.jpg
+Pidgeot - 018/165,0.19,https://tcgplayer-cdn.tcgplayer.com/product/502567_in_200x200.jpg
+Rattata - 019/165,0.11,https://tcgplayer-cdn.tcgplayer.com/product/502568_in_200x200.jpg
+Raticate - 020/165,0.19,https://tcgplayer-cdn.tcgplayer.com/product/502569_in_200x200.jpg
+Spearow - 021/165,0.13,https://tcgplayer-cdn.tcgplayer.com/product/502587_in_200x200.jpg
+Fearow - 022/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/502589_in_200x200.jpg
+Ekans - 023/165,0.14,https://tcgplayer-cdn.tcgplayer.com/product/515955_in_200x200.jpg
+Arbok ex - 024/165,1.57,https://tcgplayer-cdn.tcgplayer.com/product/515956_in_200x200.jpg
+Pikachu - 025/165,0.26,https://tcgplayer-cdn.tcgplayer.com/product/517033_in_200x200.jpg
+Raichu - 026/165,0.33,https://tcgplayer-cdn.tcgplayer.com/product/515957_in_200x200.jpg
+Sandshrew - 027/165,0.18,https://tcgplayer-cdn.tcgplayer.com/product/515978_in_200x200.jpg
+Sandslash - 028/165,0.18,https://tcgplayer-cdn.tcgplayer.com/product/515989_in_200x200.jpg
+Nidoran F - 029/165,0.23,https://tcgplayer-cdn.tcgplayer.com/product/515994_in_200x200.jpg
+Nidorina - 030/165,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516000_in_200x200.jpg
+Nidoqueen - 031/165,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516004_in_200x200.jpg
+Nidoran M - 032/165,0.24,https://tcgplayer-cdn.tcgplayer.com/product/516006_in_200x200.jpg
+Nidorino - 033/165,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516016_in_200x200.jpg
 Nidoking - 034/165,0.29,https://tcgplayer-cdn.tcgplayer.com/product/516024_in_200x200.jpg
-Ninetales ex - 038/165,1.83,https://tcgplayer-cdn.tcgplayer.com/product/516072_in_200x200.jpg
+Clefairy - 035/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516030_in_200x200.jpg
+Clefable - 036/165,0.21,https://tcgplayer-cdn.tcgplayer.com/product/516036_in_200x200.jpg
+Vulpix - 037/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516060_in_200x200.jpg
+Ninetales ex - 038/165,1.88,https://tcgplayer-cdn.tcgplayer.com/product/516072_in_200x200.jpg
+Jigglypuff - 039/165,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516108_in_200x200.jpg
 Wigglytuff ex - 040/165,1.34,https://tcgplayer-cdn.tcgplayer.com/product/516145_in_200x200.jpg
-Psyduck - 054/165,0.22,https://tcgplayer-cdn.tcgplayer.com/product/516231_in_200x200.jpg
-Poliwhirl - 061/165,0.24,https://tcgplayer-cdn.tcgplayer.com/product/516250_in_200x200.jpg
-Alakazam ex - 065/165,1.92,https://tcgplayer-cdn.tcgplayer.com/product/516381_in_200x200.jpg
+Zubat - 041/165,0.11,https://tcgplayer-cdn.tcgplayer.com/product/516150_in_200x200.jpg
+Golbat - 042/165,0.09,https://tcgplayer-cdn.tcgplayer.com/product/516152_in_200x200.jpg
+Oddish - 043/165,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516156_in_200x200.jpg
+Gloom - 044/165,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516157_in_200x200.jpg
+Vileplume - 045/165,0.26,https://tcgplayer-cdn.tcgplayer.com/product/516159_in_200x200.jpg
+Paras - 046/165,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516163_in_200x200.jpg
+Parasect - 047/165,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516170_in_200x200.jpg
+Venonat - 048/165,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516206_in_200x200.jpg
+Venomoth - 049/165,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516213_in_200x200.jpg
+Diglett - 050/165,0.08,https://tcgplayer-cdn.tcgplayer.com/product/516215_in_200x200.jpg
+Dugtrio - 051/165,0.09,https://tcgplayer-cdn.tcgplayer.com/product/516216_in_200x200.jpg
+Meowth - 052/165,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516221_in_200x200.jpg
+Persian - 053/165,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516223_in_200x200.jpg
+Psyduck - 054/165,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516231_in_200x200.jpg
+Golduck - 055/165,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516232_in_200x200.jpg
+Mankey - 056/165,0.07,https://tcgplayer-cdn.tcgplayer.com/product/516242_in_200x200.jpg
+Primeape - 057/165,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516246_in_200x200.jpg
+Growlithe - 058/165,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516247_in_200x200.jpg
+Arcanine - 059/165,0.3,https://tcgplayer-cdn.tcgplayer.com/product/516248_in_200x200.jpg
+Poliwag - 060/165,0.08,https://tcgplayer-cdn.tcgplayer.com/product/516249_in_200x200.jpg
+Poliwhirl - 061/165,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516250_in_200x200.jpg
+Poliwrath - 062/165,0.22,https://tcgplayer-cdn.tcgplayer.com/product/516251_in_200x200.jpg
+Abra - 063/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516268_in_200x200.jpg
+Kadabra - 064/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516269_in_200x200.jpg
+Alakazam ex - 065/165,1.96,https://tcgplayer-cdn.tcgplayer.com/product/516381_in_200x200.jpg
+Machop - 066/165,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516382_in_200x200.jpg
 Machoke - 067/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516383_in_200x200.jpg
-Golem ex - 076/165,1.11,https://tcgplayer-cdn.tcgplayer.com/product/516574_in_200x200.jpg
-Poke Pad - 081/088,0.29,https://tcgplayer-cdn.tcgplayer.com/product/684332_in_200x200.jpg
-Slowpoke - 086 (Cosmos Holo),1.83,https://tcgplayer-cdn.tcgplayer.com/product/706130_in_200x200.jpg
+Machamp - 068/165,0.41,https://tcgplayer-cdn.tcgplayer.com/product/516385_in_200x200.jpg
+Bellsprout - 069/165,0.13,https://tcgplayer-cdn.tcgplayer.com/product/516560_in_200x200.jpg
+Weepinbell - 070/165,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516563_in_200x200.jpg
+Victreebel - 071/165,0.13,https://tcgplayer-cdn.tcgplayer.com/product/516564_in_200x200.jpg
+Tentacool - 072/165,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516565_in_200x200.jpg
+Tentacruel - 073/165,0.21,https://tcgplayer-cdn.tcgplayer.com/product/516567_in_200x200.jpg
+Geodude - 074/165,0.13,https://tcgplayer-cdn.tcgplayer.com/product/516569_in_200x200.jpg
+Graveler - 075/165,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516572_in_200x200.jpg
+Golem ex - 076/165,1.16,https://tcgplayer-cdn.tcgplayer.com/product/516574_in_200x200.jpg
+Ponyta - 077/165,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516601_in_200x200.jpg
+Rapidash - 078/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516607_in_200x200.jpg
+Slowpoke - 079/165,0.22,https://tcgplayer-cdn.tcgplayer.com/product/516650_in_200x200.jpg
+Slowbro - 080/165,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516651_in_200x200.jpg
+Magnemite - 081/165,0.12,https://tcgplayer-cdn.tcgplayer.com/product/516648_in_200x200.jpg
+Magneton - 082/165,0.21,https://tcgplayer-cdn.tcgplayer.com/product/516649_in_200x200.jpg
+Farfetch'd - 083/165,0.09,https://tcgplayer-cdn.tcgplayer.com/product/516652_in_200x200.jpg
+Doduo - 084/165,0.11,https://tcgplayer-cdn.tcgplayer.com/product/516653_in_200x200.jpg
+Dodrio - 085/165,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516654_in_200x200.jpg
+Seel - 086/165,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516655_in_200x200.jpg
+Dewgong - 087/165,0.09,https://tcgplayer-cdn.tcgplayer.com/product/516656_in_200x200.jpg
+Grimer - 088/165,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516657_in_200x200.jpg
+Muk - 089/165,0.13,https://tcgplayer-cdn.tcgplayer.com/product/516658_in_200x200.jpg
+Shellder - 090/165,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516659_in_200x200.jpg
+Cloyster - 091/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516660_in_200x200.jpg
+Gastly - 092/165,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516661_in_200x200.jpg
+Haunter - 093/165,0.21,https://tcgplayer-cdn.tcgplayer.com/product/516662_in_200x200.jpg
+Gengar - 094/165,2.79,https://tcgplayer-cdn.tcgplayer.com/product/516663_in_200x200.jpg
+Onix - 095/165,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516664_in_200x200.jpg
+Drowzee - 096/165,0.07,https://tcgplayer-cdn.tcgplayer.com/product/516665_in_200x200.jpg
+Hypno - 097/165,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516666_in_200x200.jpg
+Krabby - 098/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516667_in_200x200.jpg
+Kingler - 099/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516668_in_200x200.jpg
+Voltorb - 100/165,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516669_in_200x200.jpg
+Electrode - 101/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516670_in_200x200.jpg
+Exeggcute - 102/165,0.12,https://tcgplayer-cdn.tcgplayer.com/product/516671_in_200x200.jpg
+Exeggutor - 103/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516672_in_200x200.jpg
+Cubone - 104/165,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516673_in_200x200.jpg
+Marowak - 105/165,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516674_in_200x200.jpg
+Hitmonlee - 106/165,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516675_in_200x200.jpg
+Hitmonchan - 107/165,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516676_in_200x200.jpg
+Lickitung - 108/165,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516677_in_200x200.jpg
+Koffing - 109/165,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516679_in_200x200.jpg
+Weezing - 110/165,0.26,https://tcgplayer-cdn.tcgplayer.com/product/516680_in_200x200.jpg
+Rhyhorn - 111/165,0.11,https://tcgplayer-cdn.tcgplayer.com/product/516570_in_200x200.jpg
+Rhydon - 112/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516573_in_200x200.jpg
+Chansey - 113/165,0.36,https://tcgplayer-cdn.tcgplayer.com/product/516575_in_200x200.jpg
 Tangela - 114/165,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516579_in_200x200.jpg
-Kangaskhan ex - 115/165,1.04,https://tcgplayer-cdn.tcgplayer.com/product/516581_in_200x200.jpg
-Lillie's Determination - 119/132,0.36,https://tcgplayer-cdn.tcgplayer.com/product/654458_in_200x200.jpg
+Kangaskhan ex - 115/165,1.09,https://tcgplayer-cdn.tcgplayer.com/product/516581_in_200x200.jpg
+Horsea - 116/165,0.1,https://tcgplayer-cdn.tcgplayer.com/product/516583_in_200x200.jpg
+Seadra - 117/165,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516584_in_200x200.jpg
+Goldeen - 118/165,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516681_in_200x200.jpg
+Seaking - 119/165,0.13,https://tcgplayer-cdn.tcgplayer.com/product/516682_in_200x200.jpg
+Staryu - 120/165,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516683_in_200x200.jpg
+Starmie - 121/165,0.27,https://tcgplayer-cdn.tcgplayer.com/product/516684_in_200x200.jpg
 Mr. Mime - 122/165,0.28,https://tcgplayer-cdn.tcgplayer.com/product/516685_in_200x200.jpg
+Scyther - 123/165,0.22,https://tcgplayer-cdn.tcgplayer.com/product/516686_in_200x200.jpg
 Jynx ex - 124/165,1.23,https://tcgplayer-cdn.tcgplayer.com/product/516687_in_200x200.jpg
+Electabuzz - 125/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516688_in_200x200.jpg
+Magmar - 126/165,0.09,https://tcgplayer-cdn.tcgplayer.com/product/516689_in_200x200.jpg
+Pinsir - 127/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516690_in_200x200.jpg
+Tauros - 128/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516691_in_200x200.jpg
+Magikarp - 129/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516692_in_200x200.jpg
+Gyarados - 130/165,0.34,https://tcgplayer-cdn.tcgplayer.com/product/516693_in_200x200.jpg
+Lapras - 131/165,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516694_in_200x200.jpg
+Ditto - 132/165,0.7,https://tcgplayer-cdn.tcgplayer.com/product/516695_in_200x200.jpg
+Eevee - 133/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516696_in_200x200.jpg
+Vaporeon - 134/165,0.33,https://tcgplayer-cdn.tcgplayer.com/product/516697_in_200x200.jpg
+Jolteon - 135/165,0.37,https://tcgplayer-cdn.tcgplayer.com/product/516698_in_200x200.jpg
+Flareon - 136/165,0.34,https://tcgplayer-cdn.tcgplayer.com/product/516699_in_200x200.jpg
+Porygon - 137/165,0.12,https://tcgplayer-cdn.tcgplayer.com/product/516700_in_200x200.jpg
 Omanyte - 138/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516701_in_200x200.jpg
-Zapdos ex - 145/165,1.68,https://tcgplayer-cdn.tcgplayer.com/product/516708_in_200x200.jpg
+Omastar - 139/165,0.27,https://tcgplayer-cdn.tcgplayer.com/product/516702_in_200x200.jpg
+Kabuto - 140/165,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516703_in_200x200.jpg
+Kabutops - 141/165,0.27,https://tcgplayer-cdn.tcgplayer.com/product/516704_in_200x200.jpg
+Aerodactyl - 142/165,0.5,https://tcgplayer-cdn.tcgplayer.com/product/516705_in_200x200.jpg
+Snorlax - 143/165,0.25,https://tcgplayer-cdn.tcgplayer.com/product/516706_in_200x200.jpg
+Articuno - 144/165,0.32,https://tcgplayer-cdn.tcgplayer.com/product/516707_in_200x200.jpg
+Zapdos ex - 145/165,1.69,https://tcgplayer-cdn.tcgplayer.com/product/516708_in_200x200.jpg
+Moltres - 146/165,0.29,https://tcgplayer-cdn.tcgplayer.com/product/516709_in_200x200.jpg
+Dratini - 147/165,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516710_in_200x200.jpg
 Dragonair - 148/165,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516711_in_200x200.jpg
-Mew ex - 151/165,7.98,https://tcgplayer-cdn.tcgplayer.com/product/516566_in_200x200.jpg
+Dragonite - 149/165,1.27,https://tcgplayer-cdn.tcgplayer.com/product/516712_in_200x200.jpg
+Mewtwo - 150/165,2.56,https://tcgplayer-cdn.tcgplayer.com/product/516713_in_200x200.jpg
+Mew ex - 151/165,7.72,https://tcgplayer-cdn.tcgplayer.com/product/516566_in_200x200.jpg
 Code Card - 151 Booster Pack,0.03,https://tcgplayer-cdn.tcgplayer.com/product/517267_in_200x200.jpg
-Code Card - 151 Ultra-Premium Collection,0.41,https://tcgplayer-cdn.tcgplayer.com/product/518464_in_200x200.jpg
-Code Card -151 Poster Collection,0.06,https://tcgplayer-cdn.tcgplayer.com/product/517553_in_200x200.jpg
-Code Card - 151 Pokemon Center Elite Trainer Box (Exclusive),8.56,https://tcgplayer-cdn.tcgplayer.com/product/531960_in_200x200.jpg
-Code Card - 151 Elite Trainer Box,0.18,https://tcgplayer-cdn.tcgplayer.com/product/517554_in_200x200.jpg
-Code Card - 151: Alakazam ex Collection,0.07,https://tcgplayer-cdn.tcgplayer.com/product/531962_in_200x200.jpg
-Code Card - 151: Zapdos ex Collection,0.06,https://tcgplayer-cdn.tcgplayer.com/product/531961_in_200x200.jpg
+Antique Dome Fossil - 152/165,0.21,https://tcgplayer-cdn.tcgplayer.com/product/516714_in_200x200.jpg
+Antique Helix Fossil - 153/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516715_in_200x200.jpg
+Antique Old Amber - 154/165,0.25,https://tcgplayer-cdn.tcgplayer.com/product/516716_in_200x200.jpg
+Big Air Balloon - 155/165,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516717_in_200x200.jpg
 Bill's Transfer - 156/165,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516718_in_200x200.jpg
+Cycling Road - 157/165,0.13,https://tcgplayer-cdn.tcgplayer.com/product/516719_in_200x200.jpg
 Daisy's Help - 158/165,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516720_in_200x200.jpg
+Energy Sticker - 159/165,0.25,https://tcgplayer-cdn.tcgplayer.com/product/516721_in_200x200.jpg
 Erika's Invitation - 160/165,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516722_in_200x200.jpg
 Giovanni's Charisma - 161/165,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516723_in_200x200.jpg
-Bulbasaur - 166/165,79.57,https://tcgplayer-cdn.tcgplayer.com/product/516997_in_200x200.jpg
-Ivysaur - 167/165,45.29,https://tcgplayer-cdn.tcgplayer.com/product/516998_in_200x200.jpg
+Grabber - 162/165,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516724_in_200x200.jpg
+Leftovers - 163/165,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516725_in_200x200.jpg
+Protective Goggles - 164/165,0.22,https://tcgplayer-cdn.tcgplayer.com/product/516726_in_200x200.jpg
+Rigid Band - 165/165,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516727_in_200x200.jpg
+Ivysaur - 167/165,45.32,https://tcgplayer-cdn.tcgplayer.com/product/516998_in_200x200.jpg
 Charmander - 168/165,95.3,https://tcgplayer-cdn.tcgplayer.com/product/502556_in_200x200.jpg
-Charmeleon - 169/165,59.59,https://tcgplayer-cdn.tcgplayer.com/product/517018_in_200x200.jpg
-Squirtle - 170/165,90.37,https://tcgplayer-cdn.tcgplayer.com/product/502549_in_200x200.jpg
+Charmeleon - 169/165,59.09,https://tcgplayer-cdn.tcgplayer.com/product/517018_in_200x200.jpg
 Wartortle - 171/165,62.76,https://tcgplayer-cdn.tcgplayer.com/product/517038_in_200x200.jpg
-Caterpie - 172/165,19.7,https://tcgplayer-cdn.tcgplayer.com/product/517016_in_200x200.jpg
-Pikachu - 173/165,87.43,https://tcgplayer-cdn.tcgplayer.com/product/513721_in_200x200.jpg
-Nidoking - 174/165,20.48,https://tcgplayer-cdn.tcgplayer.com/product/517029_in_200x200.jpg
+Caterpie - 172/165,19.8,https://tcgplayer-cdn.tcgplayer.com/product/517016_in_200x200.jpg
+Nidoking - 174/165,20.64,https://tcgplayer-cdn.tcgplayer.com/product/517029_in_200x200.jpg
 Psyduck - 175/165,67.44,https://tcgplayer-cdn.tcgplayer.com/product/517035_in_200x200.jpg
-Team Rocket's Petrel - 176/182,0.31,https://tcgplayer-cdn.tcgplayer.com/product/632976_in_200x200.jpg
 Poliwhirl - 176/165,41.66,https://tcgplayer-cdn.tcgplayer.com/product/517034_in_200x200.jpg
 Machoke - 177/165,23.38,https://tcgplayer-cdn.tcgplayer.com/product/517025_in_200x200.jpg
 Tangela - 178/165,16.15,https://tcgplayer-cdn.tcgplayer.com/product/517036_in_200x200.jpg
 Mr. Mime - 179/165,13.75,https://tcgplayer-cdn.tcgplayer.com/product/517028_in_200x200.jpg
 Omanyte - 180/165,14.17,https://tcgplayer-cdn.tcgplayer.com/product/517031_in_200x200.jpg
-Dragonair - 181/165,51.45,https://tcgplayer-cdn.tcgplayer.com/product/517020_in_200x200.jpg
-Venusaur ex - 182/165,15.27,https://tcgplayer-cdn.tcgplayer.com/product/517037_in_200x200.jpg
-Boss's Orders [Corbeau] - 183/217,0.24,https://tcgplayer-cdn.tcgplayer.com/product/675995_in_200x200.jpg
-Charizard ex - 183/165,41.21,https://tcgplayer-cdn.tcgplayer.com/product/517017_in_200x200.jpg
-Blastoise ex - 184/165,19.89,https://tcgplayer-cdn.tcgplayer.com/product/517015_in_200x200.jpg
-Arbok ex - 185/165,7.53,https://tcgplayer-cdn.tcgplayer.com/product/517014_in_200x200.jpg
-Ninetales ex - 186/165,15.63,https://tcgplayer-cdn.tcgplayer.com/product/517030_in_200x200.jpg
-Wigglytuff ex - 187/165,8.5,https://tcgplayer-cdn.tcgplayer.com/product/517039_in_200x200.jpg
-Alakazam ex - 188/165,12.74,https://tcgplayer-cdn.tcgplayer.com/product/517013_in_200x200.jpg
 Golem ex - 189/165,7.25,https://tcgplayer-cdn.tcgplayer.com/product/517021_in_200x200.jpg
-Kangaskhan ex - 190/165,6.08,https://tcgplayer-cdn.tcgplayer.com/product/517024_in_200x200.jpg
 Jynx ex - 191/165,6.82,https://tcgplayer-cdn.tcgplayer.com/product/517023_in_200x200.jpg
-Zapdos ex - 192/165,11.29,https://tcgplayer-cdn.tcgplayer.com/product/517040_in_200x200.jpg
-Mew ex - 193/165,34.08,https://tcgplayer-cdn.tcgplayer.com/product/517027_in_200x200.jpg
+Zapdos ex - 192/165,11.32,https://tcgplayer-cdn.tcgplayer.com/product/517040_in_200x200.jpg
 Bill's Transfer - 194/165,3.0,https://tcgplayer-cdn.tcgplayer.com/product/517041_in_200x200.jpg
-Daisy's Help - 195/165,2.69,https://tcgplayer-cdn.tcgplayer.com/product/517042_in_200x200.jpg
-Erika's Invitation - 196/165,6.61,https://tcgplayer-cdn.tcgplayer.com/product/517176_in_200x200.jpg
-Mountain (0197),0.44,https://tcgplayer-cdn.tcgplayer.com/product/693012_in_200x200.jpg
-Giovanni's Charisma - 197/165,4.44,https://tcgplayer-cdn.tcgplayer.com/product/517043_in_200x200.jpg
-Venusaur ex - 198/165,116.98,https://tcgplayer-cdn.tcgplayer.com/product/517044_in_200x200.jpg
-Charizard ex - 199/165,373.9,https://tcgplayer-cdn.tcgplayer.com/product/517045_in_200x200.jpg
-Blastoise ex - 200/165,139.13,https://tcgplayer-cdn.tcgplayer.com/product/517046_in_200x200.jpg
+Daisy's Help - 195/165,2.74,https://tcgplayer-cdn.tcgplayer.com/product/517042_in_200x200.jpg
+Erika's Invitation - 196/165,6.6,https://tcgplayer-cdn.tcgplayer.com/product/517176_in_200x200.jpg
+Giovanni's Charisma - 197/165,4.45,https://tcgplayer-cdn.tcgplayer.com/product/517043_in_200x200.jpg
 Alakazam ex - 201/165,69.72,https://tcgplayer-cdn.tcgplayer.com/product/517047_in_200x200.jpg
-Zapdos ex - 202/165,98.1,https://tcgplayer-cdn.tcgplayer.com/product/517048_in_200x200.jpg
 Erika's Invitation - 203/165,18.14,https://tcgplayer-cdn.tcgplayer.com/product/517049_in_200x200.jpg
-Giovanni's Charisma - 204/165,14.78,https://tcgplayer-cdn.tcgplayer.com/product/517050_in_200x200.jpg
-Mew ex - 205/165 (151 Metal Card),27.1,https://tcgplayer-cdn.tcgplayer.com/product/519481_in_200x200.jpg
+Giovanni's Charisma - 204/165,14.84,https://tcgplayer-cdn.tcgplayer.com/product/517050_in_200x200.jpg
 Mew ex - 205/165,30.43,https://tcgplayer-cdn.tcgplayer.com/product/517051_in_200x200.jpg
-Switch - 206/165,2.36,https://tcgplayer-cdn.tcgplayer.com/product/517052_in_200x200.jpg
-Basic Psychic Energy - 207/165,4.83,https://tcgplayer-cdn.tcgplayer.com/product/517053_in_200x200.jpg
-Abra,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516268_in_200x200.jpg
-Beedrill,0.25,https://tcgplayer-cdn.tcgplayer.com/product/502564_in_200x200.jpg
-Starmie,0.27,https://tcgplayer-cdn.tcgplayer.com/product/516684_in_200x200.jpg
-Omastar,0.27,https://tcgplayer-cdn.tcgplayer.com/product/516702_in_200x200.jpg
-Dratini,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516710_in_200x200.jpg
-Raichu,0.33,https://tcgplayer-cdn.tcgplayer.com/product/515957_in_200x200.jpg
-Slowpoke,0.22,https://tcgplayer-cdn.tcgplayer.com/product/516650_in_200x200.jpg
-Dragonite,1.36,https://tcgplayer-cdn.tcgplayer.com/product/516712_in_200x200.jpg
-Articuno,0.31,https://tcgplayer-cdn.tcgplayer.com/product/516707_in_200x200.jpg
-Snorlax,0.25,https://tcgplayer-cdn.tcgplayer.com/product/516706_in_200x200.jpg
-Slowbro,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516651_in_200x200.jpg
-Vaporeon,0.34,https://tcgplayer-cdn.tcgplayer.com/product/516697_in_200x200.jpg
-Cubone,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516673_in_200x200.jpg
-Tentacruel,0.21,https://tcgplayer-cdn.tcgplayer.com/product/516567_in_200x200.jpg
-Machop,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516382_in_200x200.jpg
-Meowth,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516221_in_200x200.jpg
-Gyarados,0.35,https://tcgplayer-cdn.tcgplayer.com/product/516693_in_200x200.jpg
-Kabutops,0.27,https://tcgplayer-cdn.tcgplayer.com/product/516704_in_200x200.jpg
-Moltres,0.29,https://tcgplayer-cdn.tcgplayer.com/product/516709_in_200x200.jpg
-Clefairy,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516030_in_200x200.jpg
-Mankey,0.07,https://tcgplayer-cdn.tcgplayer.com/product/516242_in_200x200.jpg
-Marowak,0.26,https://tcgplayer-cdn.tcgplayer.com/product/516674_in_200x200.jpg
-Flareon,0.34,https://tcgplayer-cdn.tcgplayer.com/product/516699_in_200x200.jpg
-Chansey,0.55,https://tcgplayer-cdn.tcgplayer.com/product/516575_in_200x200.jpg
-Vulpix,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516060_in_200x200.jpg
-Magikarp,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516692_in_200x200.jpg
-Diglett,0.08,https://tcgplayer-cdn.tcgplayer.com/product/516215_in_200x200.jpg
-Tentacool,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516565_in_200x200.jpg
-Magneton,0.21,https://tcgplayer-cdn.tcgplayer.com/product/516649_in_200x200.jpg
-Eevee,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516696_in_200x200.jpg
-Haunter,0.21,https://tcgplayer-cdn.tcgplayer.com/product/516662_in_200x200.jpg
-Gastly,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516661_in_200x200.jpg
-Jigglypuff,0.22,https://tcgplayer-cdn.tcgplayer.com/product/516108_in_200x200.jpg
-Aerodactyl,0.54,https://tcgplayer-cdn.tcgplayer.com/product/516705_in_200x200.jpg
-Farfetch'd,0.09,https://tcgplayer-cdn.tcgplayer.com/product/516652_in_200x200.jpg
-Jolteon,0.37,https://tcgplayer-cdn.tcgplayer.com/product/516698_in_200x200.jpg
-Mewtwo,2.56,https://tcgplayer-cdn.tcgplayer.com/product/516713_in_200x200.jpg
-Ditto,0.7,https://tcgplayer-cdn.tcgplayer.com/product/516695_in_200x200.jpg
-Gengar,2.83,https://tcgplayer-cdn.tcgplayer.com/product/516663_in_200x200.jpg
-Magnemite,0.12,https://tcgplayer-cdn.tcgplayer.com/product/516648_in_200x200.jpg
-Sandshrew,0.18,https://tcgplayer-cdn.tcgplayer.com/product/515978_in_200x200.jpg
-Golduck,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516232_in_200x200.jpg
-Primeape,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516246_in_200x200.jpg
-Bellsprout,0.13,https://tcgplayer-cdn.tcgplayer.com/product/516560_in_200x200.jpg
-Dewgong,0.09,https://tcgplayer-cdn.tcgplayer.com/product/516656_in_200x200.jpg
-Krabby,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516667_in_200x200.jpg
-Gloom,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516157_in_200x200.jpg
-Nidoran M,0.24,https://tcgplayer-cdn.tcgplayer.com/product/516006_in_200x200.jpg
-Seaking,0.13,https://tcgplayer-cdn.tcgplayer.com/product/516682_in_200x200.jpg
-Hitmonchan,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516676_in_200x200.jpg
-Nidorina,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516000_in_200x200.jpg
-Venomoth,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516213_in_200x200.jpg
-Victreebel,0.13,https://tcgplayer-cdn.tcgplayer.com/product/516564_in_200x200.jpg
-Pidgeotto,0.27,https://tcgplayer-cdn.tcgplayer.com/product/502566_in_200x200.jpg
-Rhyhorn,0.11,https://tcgplayer-cdn.tcgplayer.com/product/516570_in_200x200.jpg
-Porygon,0.12,https://tcgplayer-cdn.tcgplayer.com/product/516700_in_200x200.jpg
-Cloyster,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516660_in_200x200.jpg
-Goldeen,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516681_in_200x200.jpg
-Kingler,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516668_in_200x200.jpg
-Persian,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516223_in_200x200.jpg
-Nidoran F,0.24,https://tcgplayer-cdn.tcgplayer.com/product/515994_in_200x200.jpg
-Spearow,0.13,https://tcgplayer-cdn.tcgplayer.com/product/502587_in_200x200.jpg
-Koffing,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516679_in_200x200.jpg
-Hypno,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516666_in_200x200.jpg
-Graveler,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516572_in_200x200.jpg
-Rattata,0.11,https://tcgplayer-cdn.tcgplayer.com/product/502568_in_200x200.jpg
-Oddish,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516156_in_200x200.jpg
-Golbat,0.09,https://tcgplayer-cdn.tcgplayer.com/product/516152_in_200x200.jpg
-Pidgey,0.23,https://tcgplayer-cdn.tcgplayer.com/product/502565_in_200x200.jpg
-Weezing,0.27,https://tcgplayer-cdn.tcgplayer.com/product/516680_in_200x200.jpg
-Ponyta,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516601_in_200x200.jpg
-Rapidash,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516607_in_200x200.jpg
-Geodude,0.13,https://tcgplayer-cdn.tcgplayer.com/product/516569_in_200x200.jpg
-Lapras,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516694_in_200x200.jpg
-Magmar,0.08,https://tcgplayer-cdn.tcgplayer.com/product/516689_in_200x200.jpg
-Weedle,0.16,https://tcgplayer-cdn.tcgplayer.com/product/502562_in_200x200.jpg
-Poliwrath,0.22,https://tcgplayer-cdn.tcgplayer.com/product/516251_in_200x200.jpg
-Hitmonlee,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516675_in_200x200.jpg
-Kadabra,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516269_in_200x200.jpg
-Nidoqueen,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516004_in_200x200.jpg
-Doduo,0.11,https://tcgplayer-cdn.tcgplayer.com/product/516653_in_200x200.jpg
-Dodrio,0.24,https://tcgplayer-cdn.tcgplayer.com/product/516654_in_200x200.jpg
-Drowzee,0.07,https://tcgplayer-cdn.tcgplayer.com/product/516665_in_200x200.jpg
-Kabuto,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516703_in_200x200.jpg
-Vileplume,0.26,https://tcgplayer-cdn.tcgplayer.com/product/516159_in_200x200.jpg
-Dugtrio,0.09,https://tcgplayer-cdn.tcgplayer.com/product/516216_in_200x200.jpg
-Metapod,0.2,https://tcgplayer-cdn.tcgplayer.com/product/502560_in_200x200.jpg
-Staryu,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516683_in_200x200.jpg
-Ekans,0.14,https://tcgplayer-cdn.tcgplayer.com/product/515955_in_200x200.jpg
-Pidgeot,0.19,https://tcgplayer-cdn.tcgplayer.com/product/502567_in_200x200.jpg
-Electrode,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516670_in_200x200.jpg
-Horsea,0.1,https://tcgplayer-cdn.tcgplayer.com/product/516583_in_200x200.jpg
-Machamp,0.41,https://tcgplayer-cdn.tcgplayer.com/product/516385_in_200x200.jpg
-Clefable,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516036_in_200x200.jpg
-Growlithe,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516247_in_200x200.jpg
-Arcanine,0.3,https://tcgplayer-cdn.tcgplayer.com/product/516248_in_200x200.jpg
-Poliwag,0.08,https://tcgplayer-cdn.tcgplayer.com/product/516249_in_200x200.jpg
-Lickitung,0.16,https://tcgplayer-cdn.tcgplayer.com/product/516677_in_200x200.jpg
-Butterfree,0.2,https://tcgplayer-cdn.tcgplayer.com/product/502561_in_200x200.jpg
-Tauros,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516691_in_200x200.jpg
-Grabber,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516724_in_200x200.jpg
-Weepinbell,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516563_in_200x200.jpg
-Kakuna,0.21,https://tcgplayer-cdn.tcgplayer.com/product/502563_in_200x200.jpg
-Muk,0.13,https://tcgplayer-cdn.tcgplayer.com/product/516658_in_200x200.jpg
-Rigid Band,0.2,https://tcgplayer-cdn.tcgplayer.com/product/516727_in_200x200.jpg
-Paras,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516163_in_200x200.jpg
-Parasect,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516170_in_200x200.jpg
-Big Air Balloon,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516717_in_200x200.jpg
-Voltorb,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516669_in_200x200.jpg
-Zubat,0.11,https://tcgplayer-cdn.tcgplayer.com/product/516150_in_200x200.jpg
-Pinsir,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516690_in_200x200.jpg
-Cycling Road,0.13,https://tcgplayer-cdn.tcgplayer.com/product/516719_in_200x200.jpg
-Grimer,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516657_in_200x200.jpg
-Seel,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516655_in_200x200.jpg
-Sandslash,0.18,https://tcgplayer-cdn.tcgplayer.com/product/515989_in_200x200.jpg
-Electabuzz,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516688_in_200x200.jpg
-Antique Dome Fossil,0.21,https://tcgplayer-cdn.tcgplayer.com/product/516714_in_200x200.jpg
-Onix,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516664_in_200x200.jpg
-Scyther,0.22,https://tcgplayer-cdn.tcgplayer.com/product/516686_in_200x200.jpg
-Shellder,0.14,https://tcgplayer-cdn.tcgplayer.com/product/516659_in_200x200.jpg
-Energy Sticker,0.25,https://tcgplayer-cdn.tcgplayer.com/product/516721_in_200x200.jpg
-Leftovers,0.19,https://tcgplayer-cdn.tcgplayer.com/product/516725_in_200x200.jpg
-Exeggcute,0.12,https://tcgplayer-cdn.tcgplayer.com/product/516671_in_200x200.jpg
-Venonat,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516206_in_200x200.jpg
-Rhydon,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516573_in_200x200.jpg
-Fearow,0.18,https://tcgplayer-cdn.tcgplayer.com/product/502589_in_200x200.jpg
-Seadra,0.15,https://tcgplayer-cdn.tcgplayer.com/product/516584_in_200x200.jpg
-Raticate,0.2,https://tcgplayer-cdn.tcgplayer.com/product/502569_in_200x200.jpg
-Antique Old Amber,0.24,https://tcgplayer-cdn.tcgplayer.com/product/516716_in_200x200.jpg
-Nidorino,0.18,https://tcgplayer-cdn.tcgplayer.com/product/516016_in_200x200.jpg
-Antique Helix Fossil,0.21,https://tcgplayer-cdn.tcgplayer.com/product/516715_in_200x200.jpg
-Protective Goggles,0.23,https://tcgplayer-cdn.tcgplayer.com/product/516726_in_200x200.jpg
-Exeggutor,0.17,https://tcgplayer-cdn.tcgplayer.com/product/516672_in_200x200.jpg
-Lillie's Determination,0.31,https://tcgplayer-cdn.tcgplayer.com/product/676004_in_200x200.jpg
-And That's When Somebody Makes Fun of Their Friend's Dream!!!!,1.49,https://tcgplayer-cdn.tcgplayer.com/product/629126_in_200x200.jpg
-Storm Emeralda Booster Pack,3.78,https://tcgplayer-cdn.tcgplayer.com/product/709111_in_200x200.jpg
-Dawn,0.18,https://tcgplayer-cdn.tcgplayer.com/product/660414_in_200x200.jpg
-Spiderling,0.23,https://tcgplayer-cdn.tcgplayer.com/product/707691_in_200x200.jpg
-Night Stretcher,0.23,https://tcgplayer-cdn.tcgplayer.com/product/676008_in_200x200.jpg
-Code Card - Ascended Heroes Booster Pack,0.04,https://tcgplayer-cdn.tcgplayer.com/product/677186_in_200x200.jpg
-Code Card - Chaos Rising Booster Pack,0.03,https://tcgplayer-cdn.tcgplayer.com/product/695313_in_200x200.jpg
-Buddy-Buddy Poffin,0.13,https://tcgplayer-cdn.tcgplayer.com/product/675996_in_200x200.jpg
-Code Card - Pitch Black Booster Pack,0.03,https://tcgplayer-cdn.tcgplayer.com/product/705535_in_200x200.jpg
-Boss's Orders [Ghetsis],0.26,https://tcgplayer-cdn.tcgplayer.com/product/654453_in_200x200.jpg
-Poke Pad,0.29,https://tcgplayer-cdn.tcgplayer.com/product/676010_in_200x200.jpg
-Telepathic Psychic Energy,0.33,https://tcgplayer-cdn.tcgplayer.com/product/684396_in_200x200.jpg
-Defy,3.39,https://tcgplayer-cdn.tcgplayer.com/product/652821_in_200x200.jpg
-Code Card - Perfect Order Booster Pack,0.04,https://tcgplayer-cdn.tcgplayer.com/product/672416_in_200x200.jpg
-Prisoner of Impel Down,2.07,https://tcgplayer-cdn.tcgplayer.com/product/696029_in_200x200.jpg
-Hilda,1.01,https://tcgplayer-cdn.tcgplayer.com/product/642200_in_200x200.jpg
+Mew ex - 205/165 (151 Metal Card),27.1,https://tcgplayer-cdn.tcgplayer.com/product/519481_in_200x200.jpg
+Switch - 206/165,2.35,https://tcgplayer-cdn.tcgplayer.com/product/517052_in_200x200.jpg
+Basic Psychic Energy - 207/165,4.77,https://tcgplayer-cdn.tcgplayer.com/product/517053_in_200x200.jpg
