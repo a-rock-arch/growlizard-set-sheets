@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 3 # Limits concurrent pushes to prevent git branch lockouts
       matrix:
         set:
           # --- MASTER SET LIST ---
@@ -427,7 +428,6 @@ jobs:
           os.makedirs("printables", exist_ok=True)
           pdf.output(f"printables/{pdf_filename}")
           EOF
-
       - name: Commit results
         run: |
           set_url_name=$(echo "${{ matrix.set.set_url_name }}")
@@ -445,15 +445,16 @@ jobs:
           git add images/ "$csv_file" "$pdf_file"
           git commit -m "Update GrowliZard data for set: ${{ matrix.set.set_display_name }}" || echo "No changes to commit"
 
-          for i in {1..5}; do
+          # 10 attempts with an expanded random backoff window (3-12 seconds)
+          for i in {1..10}; do
             echo "Attempting to sync and push, trial #$i..."
             if git pull --rebase && git push; then
               echo "Push successful!"
               exit 0
             fi
-            echo "Push failed, waiting for a random delay..."
-            sleep $((RANDOM % 5 + 2))
+            echo "Push failed due to branch collision, waiting for delay..."
+            sleep $((RANDOM % 10 + 3))
           done
 
-          echo "::error::Could not push to remote repository after 5 attempts."
+          echo "::error::Could not push to remote repository after 10 attempts."
           exit 1
